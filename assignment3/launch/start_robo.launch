@@ -1,0 +1,15 @@
+<launch>
+    <node
+		pkg="stage_ros"
+		type="stageros"
+		name="emptyStage"
+		args="/home/viki/ROB/assignment2/empty.world" 
+	/>
+    
+    <node
+		pkg="assignment3"
+		type="steering_3"
+		name="steering_Node"
+		output="screen"
+	/>	
+</launch>
