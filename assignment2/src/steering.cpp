@@ -32,22 +32,21 @@ Steering::Steering(ros::NodeHandle nh)
 	Msg.angular.y = 0;
 	Msg.angular.z = 0;
 
-	/*
+	s_sub = nh.subscribe("/odom", 1000, &Steering::positionMessageReceived, this);
+	
+	//s_getGoal = nh.subscribe("/goal", 1000, &Steering::goalMessage, this);
+	ros::spinOnce();
+	ros::Duration(0.5).sleep();
 	goal_xPos = 0.0;
 	goal_yPos = 0.0;
 	goal_thetaPos = 0.0;
-	*/
-	s_sub = nh.subscribe("/odom", 1000, &Steering::positionMessageReceived, this);
-	s_getGoal = nh.subscribe("/goal", 1000, &Steering::goalMessage, this);
-	ros::spinOnce();
-	ros::Duration(0.5).sleep();
 }
 
 void Steering::initSteering()
 {
 	s_sub = s_nh.subscribe("/odom", 1000, &Steering::positionMessageReceived, this);
-	ros::Duration(0.5).sleep();
-	s_getGoal = s_nh.subscribe("/goal", 1, &Steering::goalMessage, this);
+	
+	s_getGoal = s_nh.subscribe("/goal", 1000, &Steering::goalMessage, this);
 }
 
 ros::NodeHandle Steering::getNH()
@@ -185,14 +184,14 @@ void Steering::rotateDegrees(float degrees)
 	angular_speed = delta_theta/6.5f;
 	
 	this->setMove(true);
-	/*
+	
 	ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 	<< "Rotation Call bfr:"
 	<< ", currentTheta = " << currentTheta*180/M_PI  
 	<< ", degrees = " << degrees 
 	<< ", delta_theta= " << delta_theta
 	<< ", angular_speed=  " << angular_speed );
-	*/
+	
 	vel_msg.angular.z = angular_speed;
 	
 	//ros::Duration(0.5).sleep();
@@ -214,14 +213,14 @@ void Steering::rotateDegrees(float degrees)
 		
 		ros::spinOnce();
 	}
-	/*
+	
 	ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 	<< "Rotation Call after:"
 	<< ", currentTheta = " << currentTheta*180/M_PI 
 	<< ", degrees = " << degrees 
 	<< ", delta_theta= " << delta_theta
 	<< ", angular_speed=  " << angular_speed );
-	*/
+	
 }
 
 void Steering::moveAtSpeed(double speed, double time)
@@ -358,20 +357,14 @@ void Steering::goalMessage(const geometry_msgs::PoseStamped& msg)
     double roll, pitch, yaw;
     m.getRPY(roll, pitch, yaw);
     
-    setGoal(msg.pose.position.x, msg.pose.position.y, yaw);   
+    setGoal(msg.pose.position.x, msg.pose.position.y, yaw);
+    
     msg_pose = msg;
     
     ROS_INFO_STREAM(std::setprecision(2) << std::fixed
                     << "goal_x = " << goal_xPos
                     << ", goal_y = " << goal_yPos
-                    << ", goal_direction = " << goal_thetaPos
-                    << ", goal_direction (Degree) = " << (goal_thetaPos*180)/M_PI
-                    << ", yaw = " << yaw);
-	ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-                    << "msg.pose.position.x = " << msg.pose.position.x
-                    << ", msg.pose.position.y = " << msg.pose.position.y
-                    << ", yaw = " << yaw
-                    << ", yaw (Degree) = " << (yaw*180)/M_PI);
+                    << ", goal_direction = " << goal_thetaPos);
 }
 
 void Steering::setGoal(float x, float y, float theta)
@@ -400,7 +393,7 @@ void Steering::pointToGoal()
 {
     double goalDir;
     goalDir = atan2((goal_yPos - this->getY()), (goal_xPos - this->getX()));
-    /*
+    
     ROS_INFO_STREAM(std::setprecision(4) << std::fixed
     << "deltaY = " << (goal_yPos - this->getY())
     << ", deltaX = " << (goal_xPos - this->getX())
@@ -410,7 +403,7 @@ void Steering::pointToGoal()
     << ", currentX = " << this->getX()    
     << ", goalDir(in degrees) =" << goalDir*180/M_PI
     << ", rotation angle passed to function: " << (goalDir)*180/M_PI);
-    */
+    
     this->rotateDegrees((goalDir)*180/M_PI);
  
 }
@@ -426,7 +419,9 @@ double Steering::findRotatingAngle(float goalAngle)
 
 //void Steering::PointAndShoot(const geometry_msgs::PoseStamped& msg)
 void Steering::PointAndShoot()
-{	
+{
+	geometry_msgs::PoseStamped Msg = *(ros::topic::waitForMessage<geometry_msgs::PoseStamped>("/goal", ros::Duration(0.25)));
+	goalMessage(Msg);
     //goalMessage(msg);
     pointToGoal();
     float deltaX = goal_xPos - this->getX();
@@ -435,18 +430,20 @@ void Steering::PointAndShoot()
     this->moveDist(distance, true);
     //Turn to the direction of the goal
     //TODO - Debug this one
-    //double turnToGoalDirAngle = findRotatingAngle(goal_thetaPos);
-    rotateDegrees(goal_thetaPos*180/M_PI);
-    /*
+    double turnToGoalDirAngle = findRotatingAngle(goal_thetaPos);
+    rotateDegrees(turnToGoalDirAngle);
+    
     ROS_INFO_STREAM(std::setprecision(2) << std::fixed
                     << "goal_x = " << goal_xPos
                     << ", goal_y = " << goal_yPos
                     << ", goal_direction = " << goal_thetaPos);
-	*/
 }
 
 void Steering::Servoing()
 {
+	geometry_msgs::PoseStamped Msg = *(ros::topic::waitForMessage<geometry_msgs::PoseStamped>("/goal", ros::Duration(0.25)));
+	goalMessage(Msg);
+	
 	float deltaX = this->get_goal_Xpos() - this->getX();
     float deltaY = this->get_goal_Ypos() - this->getY();
 	float rho = sqrt(pow(deltaX, 2) + pow(deltaY, 2));
@@ -454,13 +451,14 @@ void Steering::Servoing()
 	float alpha;
 	float beta;
 	float Kp = 1.0, Ka = 1.15, Kb = -0.05;
+	float timeInterval = 1.0;
 	float angle;
 	
 	alpha = -(this->getTheta()) + atan2(deltaY, deltaX);
 	beta = -(this->getTheta()) - alpha;
 		
-	angle = ((Ka*alpha + Kb*beta))*180/M_PI;
-	float dist = Kp*rho;
+	angle = ((Ka*alpha + Kb*beta)/timeInterval)*180/M_PI;
+	float dist = Kp*rho/timeInterval;
 	
 	ros::Rate rate(1000);
 	
@@ -474,9 +472,9 @@ void Steering::Servoing()
 		alpha = -(this->getTheta()) + atan2(deltaY, deltaX);
 		beta = -(this->getTheta()) - alpha;
 				
-		dist = Kp*rho;
-		angle = ((Ka*alpha + Kb*beta))*180/M_PI;
-		/*
+		dist = Kp*rho/timeInterval;
+		angle = ((Ka*alpha + Kb*beta)/timeInterval)*180/M_PI;
+		
 		ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 		<< "x_pos = " << this->getX() 
 		<< ", y_pos = " << this->getY() 
@@ -488,16 +486,14 @@ void Steering::Servoing()
 		<< ", theta_pos(in degrees) = " << this->getTheta()*180/M_PI 
 		<< ", angle = " << angle 
 		<< ", dist = " << dist);
-		*/
+		
 		
 		this->rotateDegrees(angle - this->getTheta()*180/M_PI);
 		this->moveDist(dist, true);
 		if(rho <= 0.15)
 		{
-			/*
 			ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 			<< "goal achieved, will break from loop");
-			*/
 			this->stopMoving();
 			break;
 		}
@@ -528,6 +524,9 @@ void Steering::moveAndRotate(double movespeed, double rotationspeed)
 
 void Steering::ServoingAlternative()
 {
+	geometry_msgs::PoseStamped Msg = *(ros::topic::waitForMessage<geometry_msgs::PoseStamped>("/goal", ros::Duration(0.25)));
+	goalMessage(Msg);
+	
 	float deltaX = this->get_goal_Xpos() - this->getX();
     float deltaY = this->get_goal_Ypos() - this->getY();
 	float rho = sqrt(pow(deltaX, 2) + pow(deltaY, 2));
@@ -570,15 +569,12 @@ void Steering::ServoingAlternative()
 		<< ", dist = " << dist);
 		*/
 		this->moveAndRotate(dist, angle);
-		/*
 		ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 			<< "x_pos = " << this->getX() 
 			<< ", y_pos = " << this->getY()  
 			<< ", rho = " << rho);
-		*/
 		if(rho <= 0.15)
 		{
-			/*
 			ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 			<< "x_pos = " << this->getX() 
 			<< ", y_pos = " << this->getY() 
@@ -593,13 +589,12 @@ void Steering::ServoingAlternative()
 			
 			ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 			<< "goal achieved, will break from loop");
-			*/
 			this->stopMoving();
 			break;
 		}
 		
 		ros::spinOnce();
 	}
-	rotateDegrees(goal_thetaPos*180/M_PI);
+	rotateDegrees(180);
 	
 }

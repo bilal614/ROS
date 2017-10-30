@@ -8,6 +8,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <angles/angles.h>
+#include <ros/topic.h>
 
 #define STEERING
 const int spinning_rt = 1000;
@@ -100,6 +101,7 @@ class Steering
         void Servoing();
         
         void ServoingAlternative();
+
 };
 
 

@@ -8,28 +8,6 @@ int getMode();
 
 int main(int argc, char **argv)
 {
-	/*
-	ros::init(argc, argv, "steering_communicator");
-     
-    ros::NodeHandle nh;
-     
-    Steering steering(nh);
-    steering.initSteering();
-	geometry_msgs::PoseStamped pose_msg;
-	
-	pose_msg.pose.orientation.x = M_PI_2;
-	pose_msg.pose.orientation.y = M_PI_2;
-	pose_msg.pose.orientation.z = M_PI_2;
-	pose_msg.pose.orientation.w = M_PI_2;
-	
-	
-	pose_msg.pose.position.x = -4.5;
-	pose_msg.pose.position.y = 5.5;
-	steering.goalMessage(pose_msg);
-	//steering.PointAndShoot();
-	steering.ServoingAlternative();
-	printLocationInfo(steering);
-	*/
 	
 	//////////////////////////////////////////////
 	
@@ -42,7 +20,7 @@ int main(int argc, char **argv)
 	//steering.initSteering();
     int mode;
     geometry_msgs::PoseStamped pose_msg;
-	
+	/*
 	pose_msg.pose.orientation.x = M_PI_2;
 	pose_msg.pose.orientation.y = M_PI_2;
 	pose_msg.pose.orientation.z = M_PI_2;
@@ -51,6 +29,7 @@ int main(int argc, char **argv)
 	
 	pose_msg.pose.position.x = 0;
 	pose_msg.pose.position.y = 0;
+	*/
 	//steering.goalMessage(pose_msg);
 	//steering.PointAndShoot();
 	//steering.ServoingAlternative();
