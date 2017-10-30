@@ -38,7 +38,7 @@ Steering::Steering(ros::NodeHandle nh)
 	goal_thetaPos = 0.0;
 	*/
 	s_sub = nh.subscribe("/odom", 1000, &Steering::positionMessageReceived, this);
-	s_getGoal = nh.subscribe("/goal", 100, &Steering::goalMessage, this);
+	s_getGoal = nh.subscribe("/goal", 1000, &Steering::goalMessage, this);
 	ros::spinOnce();
 	ros::Duration(0.5).sleep();
 }
