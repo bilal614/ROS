@@ -1,6 +1,7 @@
 /*This nodes generates a rectangular path and publishes on the /plan topic*/
 #include <ros/ros.h>
 #include <tf/transform_listener.h>
+#include <nav_msgs/Path.h>
 #include <geometry_msgs/Twist.h>
 #include <turtlesim/Spawn.h>
 
@@ -8,21 +9,20 @@ nav_msgs::Path Construct_Path_Msg(double* x, double *y, int nrOfPoints);
 nav_msgs::Path  generateRectangularPath(double w, double h, double x, double y);
 int main(int argc, char** argv)
 {
-	ros::init(argc, argv, "local_planner");
+	ros::init(argc, argv, "global_planner_reg");
 
 	ros::NodeHandle nh;
 
-	//Steering steering(nh);
 	ros::Publisher global_retangle_planner = nh.advertise<nav_msgs::Path> (
-			"/cmd_vel", 1000);
+			"/path", 1000);
 
 	ros::Rate rate(1000.0);
 	ros::Rate loop_rate(10);
 	while (ros::ok())
 	{
 		nav_msgs::Path msg;
-
-		generateRectangularPath(20,10,5,5);
+		ROS_INFO("RUNNING RECTANGULAR GLOBAL PATH PLANNER");
+		msg = generateRectangularPath(20,10,5,5);
 
 		global_retangle_planner.publish(msg);
 
@@ -42,8 +42,8 @@ int main(int argc, char** argv)
 nav_msgs::Path Construct_Path_Msg(double* x, double *y, int nrOfPoints)
 {
 	nav_msgs::Path msg;
-	std::vector<geometry_msgs::PoseStamped> poses(length);
-	for (int i = 0; i < length; i++)
+	std::vector<geometry_msgs::PoseStamped> poses(nrOfPoints);
+	for (int i = 0; i < nrOfPoints; i++)
 	{
 		poses.at(i).pose.position.x = x[i];
 		poses.at(i).pose.position.y = y[i];
@@ -59,7 +59,7 @@ nav_msgs::Path Construct_Path_Msg(double* x, double *y, int nrOfPoints)
  * @param x,y is the top left conner of the rectangular path, can be considered as a current position
  * @return msg the constructed nav_msgs::Path message
  */
-nav_msgs::Path  generateRectangularPath(double w, double h, double x, double y)
+nav_msgs::Path generateRectangularPath(double w, double h, double x, double y)
 {
 	double x_cors[4];
 	double y_cors[4];
@@ -67,7 +67,7 @@ nav_msgs::Path  generateRectangularPath(double w, double h, double x, double y)
 	//TODO this one can be improved in such a way that the nr of centers point can be added
 	//init fours point, in a clock-wise order
 	x_cors[0] = x;
-	y_Cors[0] = y;
+	y_cors[0] = y;
 
 	x_cors[1] = x + w;
 	y_cors[1] = y;

@@ -8,8 +8,8 @@
     
     <node
 		pkg="assignment3"
-		type="steering_3"
-		name="steering_Node"
+		type="global_planner"
+		name="global_planner_reg"
 		output="screen"
 	/>		
 </launch>
