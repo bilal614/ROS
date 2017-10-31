@@ -8,6 +8,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <angles/angles.h>
+#include <ros/topic.h>
 
 #define STEERING
 const int spinning_rt = 1000;
@@ -40,6 +41,8 @@ class Steering
 	public:
 		
 		Steering(ros::NodeHandle nh);
+		
+		void initSteering();
 		
 		ros::NodeHandle getNH();
 		
@@ -89,8 +92,8 @@ class Steering
         
 		double findRotatingAngle(float goalAngle);
         
-        void PointAndShoot(const geometry_msgs::PoseStamped& msg);
-        
+        //void PointAndShoot(const geometry_msgs::PoseStamped& msg);
+        void PointAndShoot();
         geometry_msgs::PoseStamped msg_pose;
         
         void pointToGoal();
@@ -98,6 +101,7 @@ class Steering
         void Servoing();
         
         void ServoingAlternative();
+
 };
 
 

@@ -32,13 +32,21 @@ Steering::Steering(ros::NodeHandle nh)
 	Msg.angular.y = 0;
 	Msg.angular.z = 0;
 
-	s_sub = (this->getNH()).subscribe("/odom", 1000, &Steering::positionMessageReceived, this);
+	s_sub = nh.subscribe("/odom", 1000, &Steering::positionMessageReceived, this);
 	
-	s_getGoal = nh.subscribe("/goal", 1000, &Steering::goalMessage, this);
+	//s_getGoal = nh.subscribe("/goal", 1000, &Steering::goalMessage, this);
 	ros::spinOnce();
 	ros::Duration(0.5).sleep();
-	//ros::spinOnce();
+	goal_xPos = 0.0;
+	goal_yPos = 0.0;
+	goal_thetaPos = 0.0;
+}
 
+void Steering::initSteering()
+{
+	s_sub = s_nh.subscribe("/odom", 1000, &Steering::positionMessageReceived, this);
+	
+	s_getGoal = s_nh.subscribe("/goal", 1000, &Steering::goalMessage, this);
 }
 
 ros::NodeHandle Steering::getNH()
@@ -96,8 +104,6 @@ void Steering::moveDist(double distance, bool forward)
 		<< ", targetX = " << targetX
 		<< ", targetY = " << targetY);
 		*/
-	
-	//ros::Duration(0.5).sleep();
 	
 	s_timer = s_nh.createTimer(ros::Duration(static_cast<float>(speed)), &Steering::stopMovingWithTimer, this, true);
 	
@@ -386,35 +392,18 @@ float Steering::get_theta_Pos()
 void Steering::pointToGoal()
 {
     double goalDir;
-    goalDir = atan2(goal_yPos - this->getY(), goal_xPos - this->getX());
-    if((goal_yPos - this->getY()) < 0)
-    {
-		if((goal_xPos - this->getX()) < 0)
-		{
-			goalDir += 2*M_PI;
-		}
-	}
-	else
-	{
-		if((goal_xPos - this->getX()) < 0)
-		{
-			goalDir -= 2*M_PI;
-		}
-	}
-	if((goal_xPos - this->getX()) == 0 && (goal_yPos - this->getY()) > 0)
-	{
-		goalDir = M_PI_2;
-	}
-	if((goal_xPos - this->getX()) == 0 && (goal_yPos - this->getY()) < 0)
-	{
-		goalDir = -1*M_PI_2;
-	}
-	/*
-    ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-    << "goalDir(in degrees) =" << goalDir*180/M_PI
+    goalDir = atan2((goal_yPos - this->getY()), (goal_xPos - this->getX()));
+    
+    ROS_INFO_STREAM(std::setprecision(4) << std::fixed
+    << "deltaY = " << (goal_yPos - this->getY())
+    << ", deltaX = " << (goal_xPos - this->getX())
+    << ", goal_yPos = " << goal_yPos
+    << ", goal_xPos = " << goal_xPos
+    << ", currentY = " << this->getY()
+    << ", currentX = " << this->getX()    
+    << ", goalDir(in degrees) =" << goalDir*180/M_PI
     << ", rotation angle passed to function: " << (goalDir)*180/M_PI);
-    */
-    //double rotateAngle = findRotatingAngle(goalDir);
+    
     this->rotateDegrees((goalDir)*180/M_PI);
  
 }
@@ -428,9 +417,12 @@ double Steering::findRotatingAngle(float goalAngle)
     return rotatingAngleDegree;
 }
 
-void Steering::PointAndShoot(const geometry_msgs::PoseStamped& msg)
+//void Steering::PointAndShoot(const geometry_msgs::PoseStamped& msg)
+void Steering::PointAndShoot()
 {
-    goalMessage(msg);
+	geometry_msgs::PoseStamped Msg = *(ros::topic::waitForMessage<geometry_msgs::PoseStamped>("/goal", ros::Duration(0.25)));
+	goalMessage(Msg);
+    //goalMessage(msg);
     pointToGoal();
     float deltaX = goal_xPos - this->getX();
     float deltaY = goal_yPos - this->getY();
@@ -440,10 +432,18 @@ void Steering::PointAndShoot(const geometry_msgs::PoseStamped& msg)
     //TODO - Debug this one
     double turnToGoalDirAngle = findRotatingAngle(goal_thetaPos);
     rotateDegrees(turnToGoalDirAngle);
+    
+    ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+                    << "goal_x = " << goal_xPos
+                    << ", goal_y = " << goal_yPos
+                    << ", goal_direction = " << goal_thetaPos);
 }
 
 void Steering::Servoing()
 {
+	geometry_msgs::PoseStamped Msg = *(ros::topic::waitForMessage<geometry_msgs::PoseStamped>("/goal", ros::Duration(0.25)));
+	goalMessage(Msg);
+	
 	float deltaX = this->get_goal_Xpos() - this->getX();
     float deltaY = this->get_goal_Ypos() - this->getY();
 	float rho = sqrt(pow(deltaX, 2) + pow(deltaY, 2));
@@ -521,8 +521,12 @@ void Steering::moveAndRotate(double movespeed, double rotationspeed)
 	(this->get_publisher()).publish(vel_msg);
 }
 
+
 void Steering::ServoingAlternative()
 {
+	geometry_msgs::PoseStamped Msg = *(ros::topic::waitForMessage<geometry_msgs::PoseStamped>("/goal", ros::Duration(0.25)));
+	goalMessage(Msg);
+	
 	float deltaX = this->get_goal_Xpos() - this->getX();
     float deltaY = this->get_goal_Ypos() - this->getY();
 	float rho = sqrt(pow(deltaX, 2) + pow(deltaY, 2));
