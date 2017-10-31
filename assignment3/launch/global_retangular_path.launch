@@ -11,13 +11,5 @@
 		type="steering_3"
 		name="steering_Node"
 		output="screen"
-	/>	
-	<node 
-		pkg="tf" 
-		type="static_transform_publisher" 
-		name="static_Publisher" 
-		args="3 0 0 0 0 0 1 map odom 100" 
-	/>
-   
-	
+	/>		
 </launch>
