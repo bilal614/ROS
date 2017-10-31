@@ -595,6 +595,6 @@ void Steering::ServoingAlternative()
 		
 		ros::spinOnce();
 	}
-	rotateDegrees(180);
+	rotateDegrees(goal_thetaPos*180/M_PI);
 	
 }

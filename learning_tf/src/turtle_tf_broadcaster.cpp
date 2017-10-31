@@ -14,6 +14,10 @@ void poseCallback(const turtlesim::PoseConstPtr& msg){
   q.setRPY(0, 0, msg->theta);
   transform.setRotation(q);
   br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", turtle_name));
+  
+  ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+		<< "\nWorld: x-position: " << transform.getOrigin().x()
+		<<", y-position:" << transform.getOrigin().y());
 }
 
 int main(int argc, char** argv){
@@ -23,7 +27,7 @@ int main(int argc, char** argv){
 
   ros::NodeHandle node;
   ros::Subscriber sub = node.subscribe(turtle_name+"/pose", 10, &poseCallback);
-
+		
   ros::spin();
   return 0;
 };

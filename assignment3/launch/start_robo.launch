@@ -16,7 +16,7 @@
 		pkg="tf" 
 		type="static_transform_publisher" 
 		name="static_Publisher" 
-		args="1 1 0 0 0 0 1 map odom 100" 
+		args="3 0 0 0 0 0 1 map odom 100" 
 	/>
    
 	
