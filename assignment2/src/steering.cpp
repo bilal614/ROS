@@ -595,6 +595,6 @@ void Steering::ServoingAlternative()
 		
 		ros::spinOnce();
 	}
-	rotateDegrees(d UX software);
+	rotateDegrees(goal_thetaPos*180/M_PI);
 	
 }
