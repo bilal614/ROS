@@ -23,6 +23,8 @@ int main(int argc, char** argv){
 		listener.lookupTransform("/map", "/odom",
           ros::Time(0), transform);
 		pose_listener.lookupTransform("/odom", "/base_footprint", ros::Time(0), position_transform);
+		//listener.waitForTransform("/map", "/base_link", ros::Time(0), ros::Duration(10.0) );
+		//pose_listener.lookupTransform("/map", "/base_link", ros::Time(0), position_transform);
     }
     catch (tf::TransformException &ex) {
       ROS_ERROR("%s",ex.what());
@@ -30,10 +32,11 @@ int main(int argc, char** argv){
       continue;
     }
 		
+	/*
 	ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-		<< "\nGoal Message: x-position: " << transform.getOrigin().x()
+		<< "\nMap Message: x-position: " << transform.getOrigin().x()
 		<<", y-position:" << transform.getOrigin().y());
-	
+	*/
 	ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 		<< "\nCurrent Position: x-position: " << position_transform.getOrigin().x()
 		<<", y-position:" << position_transform.getOrigin().y());
@@ -41,27 +44,11 @@ int main(int argc, char** argv){
 	//steering.setGoal(transform.getOrigin().x(), transform.getOrigin().y(), M_PI);
     geometry_msgs::Twist vel_msg;
     
-    float deltaX = transform.getOrigin().x() - position_transform.getOrigin().x();
-    float deltaY = transform.getOrigin().y() - position_transform.getOrigin().y();
-    
-    float rho = sqrt(pow(deltaX, 2) + pow(deltaY, 2));
-        
-    //vel_msg.angular.z = atan2(deltaY, deltaX);
-    vel_msg.angular.z = 1.0 * atan2(transform.getOrigin().y(),
-                                    transform.getOrigin().x());
-                                    
-    vel_msg.linear.x = 0.75*rho;
+                                 
+    vel_msg.linear.x = 0.1;
     stage_vel.publish(vel_msg);
     rate.sleep();
     
-   
-	if(rho <= 0.2)
-	{
-		vel_msg.angular.z = 0;
-		vel_msg.linear.x = 0;
-		stage_vel.publish(vel_msg);
-		return 0;
-	}
 	
   }
   return 0;

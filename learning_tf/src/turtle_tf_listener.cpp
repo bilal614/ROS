@@ -42,7 +42,7 @@ int main(int argc, char** argv){
     }
 
 	ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-		<< "\nWorld: x-position: " << transform.getOrigin().x()
+		<< "\nTurtle: x-position: " << transform.getOrigin().x()
 		<<", y-position:" << transform.getOrigin().y());
 		
     geometry_msgs::Twist vel_msg;
