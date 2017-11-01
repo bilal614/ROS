@@ -4,13 +4,19 @@
 #include <turtlesim/Spawn.h>
 #include "steering.hpp"
 #include <math.h>
+#include <iostream>
+#include <exception>
 
-const double lookaheadRadius = 3.0;
+
+const double lookaheadRadius = sqrt(3.0);
+struct point {double x; double y;};
+template<typename T> struct pair{ T p1; T p2; };
 
 double getSlope_L(double x1, double x2, double y1, double y2);//returns the slope of a line, constructed from 2 given points
 double getIntercept_L(double x, double y, double slope);//returns the y-intercept value of a line, given a point and slope
-double solveCircleLineQuad(double x1, double x2, double y1, double y2);//Solve for intersection points of the line L defined by 
+pair<point> solveCircleLineQuad(double x1, double x2, double y1, double y2);//Solve for intersection points of the line L defined by 
 //2 points and the circle C with radius defined by lookaheadRadius
+double computeAngleE(point point1, point point2, double currentTheta);
 
 int main(int argc, char** argv){
   ros::init(argc, argv, "local_planner");
@@ -40,10 +46,11 @@ int main(int argc, char** argv){
       continue;
     }
 		
+	/*
 	ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 		<< "\nMap Message: x-position: " << transform.getOrigin().x()
 		<<", y-position:" << transform.getOrigin().y());
-	
+	*/
 	
 	//x and y represent current position of the robot, th represents orientation of the robot	
 	double x = position_transform.getOrigin().x();
@@ -68,6 +75,22 @@ int main(int argc, char** argv){
     stage_vel.publish(vel_msg);
     rate.sleep();
 	
+	//testing
+	pair<point> Result = solveCircleLineQuad(4, -4, -1, 4);
+	ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+		<< "\nPoint1: x = " << Result.p1.x 
+		<< ", y = " << Result.p1.y
+		<< "\nPoint2: x = " << Result.p2.x 
+		<< ", y = " << Result.p2.y);
+		
+	point robotPoint;
+	robotPoint.x = x;
+	robotPoint.y = y;
+	double angleE = computeAngleE(Result.p1, robotPoint, th);
+	
+	ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+		<< "\nAngle e: " << angleE*180/M_PI);
+	
   }
   return 0;
 };
@@ -82,9 +105,11 @@ double getIntercept_L(double x, double y, double slope)
 	return y - slope*x;
 }
 
-double solveCircleLineQuad(double x1, double x2, double y1, double y2)
+pair<point> solveCircleLineQuad(double x1, double x2, double y1, double y2)
 {
 
+	pair<point> result;
+	
 	double m = getSlope_L(x1, x2, y1, y2);
 	double B = getIntercept_L(x1, y1, m);
 	double a = 1 + pow(m, 2);
@@ -94,24 +119,31 @@ double solveCircleLineQuad(double x1, double x2, double y1, double y2)
 	if(a<0.000001)    // ==0
 	{
 		if(b>0.000001)  // !=0
-			result.p1.r=result.p2.r=-c/b;
+		{
+			result.p1.x=result.p2.x=-c/b;
+		}
 		else
-			if(c>0.00001) throw exception("no solutions");
+			if(c>0.00001) throw "no solutions";
 		return result;
 	}
 
 	double delta=b*b-4*a*c;
 	if(delta>=0)
 	{
-		result.p1.r=(-b-sqrt(delta))/2/a;
-		result.p2.r=(-b+sqrt(delta))/2/a;
+		result.p1.x=(-b-sqrt(delta))/2/a;
+		result.p2.x=(-b+sqrt(delta))/2/a;
+		result.p1.y = m*result.p1.x + B;
+		result.p2.y = m*result.p2.x + B;
 	}
 	else
 	{
-		result.p1.r=result.p2.r=-b/2/a;
-		result.p1.i=sqrt(-delta)/2/a;
-		result.p2.i=-sqrt(-delta)/2/a;
+		throw "non-real solutions";
 	}
 
 	return result;
+}
+
+double computeAngleE(point point1, point robot_point, double currentTheta)
+{
+	return (atan2((point1.y - robot_point.y), (point1.x - robot_point.x)) - currentTheta);
 }
