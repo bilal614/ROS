@@ -8,16 +8,8 @@
     
     <node
 		pkg="assignment3"
-		type="steering_3"
-		name="steering_Node"
+		type="global_planner"
+		name="global_planner_reg"
 		output="screen"
-	/>	
-	<node 
-		pkg="tf" 
-		type="static_transform_publisher" 
-		name="static_Publisher" 
-		args="0 0 0 0 0 0 1 map odom 100" 
-	/>
-   
-	
+	/>		
 </launch>
