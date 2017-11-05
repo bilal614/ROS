@@ -13,6 +13,8 @@ const double lookaheadRadius = sqrt(64.0);
 nav_msgs::Path pathMsg;
 struct point {double x; double y;};
 template<typename T> struct pair{ T p1; T p2; };
+int tri_sqr = 3;
+
 
 double getSlope_L(double x1, double x2, double y1, double y2);//returns the slope of a line, constructed from 2 given points
 double getIntercept_L(double x, double y, double slope);//returns the y-intercept value of a line, given a point and slope
@@ -28,14 +30,34 @@ int main(int argc, char** argv){
 
 	ros::NodeHandle nh;
   
-	geometry_msgs::PoseStamped poses[4];
-	point cart_points[4];
+	geometry_msgs::PoseStamped poses[(tri_sqr+1)];
+	point cart_points[(tri_sqr+1)];
 	
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < tri_sqr+1; i++)
 	{
 		//point temp_point;
-		cart_points[i].x = ((i%2)+2)*2-2;
-		poses[i].pose.position.x = ((i%2)+2)*2-2;//(2,4,2,4) (2,2) (4,2) (2,0) (4,0)
+		//cart_points[i].x = ((i%2)+2)*2-2;
+		//poses[i].pose.position.x = ((i%2)+2)*2-2;//(2,4,2,4) (2,2) (4,2) (2,0) (4,0)
+		cart_points[i].x = -2*(i+1);
+		poses[i].pose.position.x = -2*(i+1);//(2,4,6)
+		if(i == 1)
+		{
+			poses[i].pose.position.y = 6;
+			cart_points[i].y = 6;
+		}
+		else
+		{
+			poses[i].pose.position.y = 2;//(2,6,2)
+			cart_points[i].y = 2; 
+		}//(2,2) (4,6) (6,2)
+		if(i == 3)
+		{
+			cart_points[i].x = -2;
+			poses[i].pose.position.x = -2;
+			cart_points[i].y = 2;
+			poses[i].pose.position.y = 2;
+		}
+		/*
 		if(i < 2)
 		{
 			poses[i].pose.position.y = 2;//(2,2,0,0)
@@ -46,6 +68,7 @@ int main(int argc, char** argv){
 			poses[i].pose.position.y = 0;
 			cart_points[i].y = 0;
 		}
+		*/
 			
 	} 
 	
@@ -58,7 +81,7 @@ int main(int argc, char** argv){
 
 	ros::Publisher stage_vel = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
 	
-	tf::TransformListener listener;//Listening to Goal related transformation between parent map and child odom
+	tf::TransformListener listener;
 	tf::TransformListener pose_listener;//For current position
 
 	ros::Rate rate(1000.0);
@@ -138,20 +161,22 @@ int main(int argc, char** argv){
 		{
 
 			Result = solveCircleLineQuad(cart_points[coordinateCounter].x, 
-				cart_points[coordinateCounter+1].x, cart_points[coordinateCounter].y, cart_points[coordinateCounter+1].y);
-			//ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-			//<< "\nResult: p1: (" << Result.p1.x << ", " << Result.p1.y << "), p2: (" 
-			//<< Result.p2.x << ", " << Result.p2.y << ")");	
+				cart_points[coordinateCounter+1].x, 
+				cart_points[coordinateCounter].y, 
+				cart_points[coordinateCounter+1].y);
+			ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+			<< "\nResult: p1: (" << Result.p1.x << ", " << Result.p1.y << "), p2: (" 
+			<< Result.p2.x << ", " << Result.p2.y << ")");	
 			closesPt = findCloserPoint(Result, cart_points[coordinateCounter+1]);
-			closesPt.x += robotPoint.x;
-			closesPt.y += robotPoint.y;
+			//closesPt.x += robotPoint.x;
+			//closesPt.y += robotPoint.y;
 			angleE = computeAngleE(closesPt, robotPoint, th); 
-			
+			/*
 			ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 			<< "\nClosest Point: x: " << closesPt.x
 			<<", y:" << closesPt.y
 			<< ", angleE: " << angleE*180/M_PI);
-			
+			*/
 			vel_msg.angular.z = 1.5*angleE;
 			//if(abs(th-angleE) < 0.005)
 			rho =  sqrt(pow((robotPoint.x-cart_points[coordinateCounter+1].x), 2) + 
@@ -169,7 +194,7 @@ int main(int argc, char** argv){
 				<< ", rotation: " << th
 				<< ", angleE: " << angleE);
 				coordinateCounter++;
-				if(coordinateCounter > 3)
+				if(coordinateCounter > tri_sqr+1)
 				{
 					return 0;
 				}
