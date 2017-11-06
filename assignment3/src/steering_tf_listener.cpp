@@ -75,12 +75,12 @@ int main(int argc, char** argv){
 			*/
 
 		geometry_msgs::Twist vel_msg;
-		//nav_msgs::Path Msg = *(ros::topic::waitForMessage<nav_msgs::Path>("/plan", ros::Duration(0.25)));
-		msg_received_and_executed = true;
+		nav_msgs::Path Msg = *(ros::topic::waitForMessage<nav_msgs::Path>("/plan", ros::Duration(0.25)));
+		//msg_received_and_executed = true;
 		if(msg_received_and_executed)
 		{
-			//followWaypoints(stage_vel, vel_msg, WayPoints);
-			followWaypoints(stage_vel, vel_msg, 4);
+			followWaypoints(stage_vel, vel_msg, WayPoints);
+			//followWaypoints(stage_vel, vel_msg, 4);
 		}
 		
 		rate.sleep();
@@ -172,6 +172,8 @@ void PathMessageReceived(const nav_msgs::Path& msg)
 	pathMsg = msg;
 	msg_received_and_executed = true;
 	WayPoints = nmbrOfWaypoints;
+	ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+		<< "\nPath Message: " << pathMsg);
 }
 
 point findCloserPoint(pair<point> pair_of_pts, point inspect)
@@ -187,7 +189,7 @@ point findCloserPoint(pair<point> pair_of_pts, point inspect)
 
 int followWaypoints(ros::Publisher stage_vel, geometry_msgs::Twist vel_msg,  int nr_of_waypoints)
 {
-	/*
+	
 	geometry_msgs::PoseStamped poses[nr_of_waypoints+1];
 	point cart_points[nr_of_waypoints+1];
 	
@@ -196,9 +198,9 @@ int followWaypoints(ros::Publisher stage_vel, geometry_msgs::Twist vel_msg,  int
 		cart_points[i].x = pathMsg.poses[i].pose.position.x;
 		poses[i].pose.position.x = pathMsg.poses[i].pose.position.x;
 	}
-	*/
-	//otherwise get them from global poses and cart_points
 	
+	//otherwise get them from global poses and cart_points
+	/*
 	geometry_msgs::PoseStamped poses[nr_of_waypoints+1];
 	point cart_points[nr_of_waypoints+1];
 	//fill out waypoints 
@@ -233,14 +235,14 @@ int followWaypoints(ros::Publisher stage_vel, geometry_msgs::Twist vel_msg,  int
 			cart_points[i].y = -2;
 			poses[i].pose.position.y = -2;
 			*/
-			
+			/*
 			cart_points[i].x = 0;
 			poses[i].pose.position.x = 0;
 			cart_points[i].y = 0;
 			poses[i].pose.position.y = 0;
 		}		
 	}
-	
+	*/
 	//x and y represent current position of the robot, th represents orientation of the robot	
 	double x = position_transform.getOrigin().x();
 	double y = position_transform.getOrigin().y();
