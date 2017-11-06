@@ -29,7 +29,7 @@ int main(int argc, char** argv)
 
 		global_retangle_planner.publish(msg);
 
-		ros::spin();
+		ros::spinOnce();
 	}
 
 	return 0;
@@ -56,9 +56,10 @@ nav_msgs::Path Construct_Path_Msg(double* x, double *y, int nrOfPoints)
 						<< y[i]);
 
 	}
-	ROS_INFO_STREAM(
-			std::setprecision(2) << std::fixed << "\nPath Message: " << msg);
+
 	msg.poses = poses;
+	ROS_INFO_STREAM(
+				std::setprecision(2) << std::fixed << "\nPath Message: " << msg);
 	return msg;
 }
 /**
@@ -77,7 +78,7 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 	int widthWeightPoints = (w - x) / weightPointDis;
 	int countPoints = 1;
 
-	int Points_max = heightWeightPoints * 2 + widthWeightPoints * 2 + 8;
+	int Points_max = heightWeightPoints * 2 + widthWeightPoints * 2 + 4;
 	double x_points[Points_max];
 	double y_points[Points_max];
 	double remainderWidth = remainder(w, weightPointDis);
@@ -151,8 +152,9 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 	//x_points[countPoints - 1] = x_cors[2];
 	//y_points[countPoints - 1] = y_cors[2];
 
-	for (int i = 0; i <= widthWeightPoints; i++)
+	for (int i = 0; i <= widthWeightPoints + 2; i++)
 	{
+		y_points[countPoints] = y_cors[2];
 
 		double tempDis = x_points[countPoints - 1] - x_cors[3];
 		if (tempDis < weightPointDis)
@@ -166,16 +168,17 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 		{
 			x_points[countPoints] = x_points[countPoints - 1] - weightPointDis;
 		}
-		y_points[countPoints] = y_cors[2];
+
 		countPoints++;
 
 	}
 	//x_points[countPoints] = x_cors[3];
 	//y_points[countPoints] = y_cors[3];
 
-	for (int i = 0; i < heightWeightPoints; i++)
+	for (int i = 0; i < heightWeightPoints + 1; i++)
 	{
 
+		x_points[countPoints] = x_cors[3];
 		double tempDis = y_points[countPoints - 1] - y_cors[0];
 		if (tempDis < weightPointDis)
 		{
@@ -187,7 +190,7 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 		{
 			y_points[countPoints] = y_points[countPoints - 1] - weightPointDis;
 		}
-		x_points[countPoints] = x_cors[3];
+
 		y_points[countPoints] = y_points[countPoints - 1] - weightPointDis;
 		countPoints++;
 	}
