@@ -11,7 +11,14 @@
 		type="steering_3"
 		name="steering_Node"
 		output="screen"
-	/>	
+	/>
+	
+	<node
+		pkg="assignment3"
+		type="global_planner_reg"
+		name="global_planner"
+		launch-prefix="xterm -e"
+	/>		
 	<node 
 		pkg="tf" 
 		type="static_transform_publisher" 

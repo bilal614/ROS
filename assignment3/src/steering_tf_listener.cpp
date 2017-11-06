@@ -13,7 +13,8 @@ const double lookaheadRadius = sqrt(64.0);
 nav_msgs::Path pathMsg;
 struct point {double x; double y;};
 template<typename T> struct pair{ T p1; T p2; };
-const int tri_sqr = 4;
+//const int tri_sqr = 4;
+int WayPoints = 0;
 //geometry_msgs::PoseStamped poses[(tri_sqr+1)];
 //point cart_points[(tri_sqr+1)];
 tf::StampedTransform transform;
@@ -75,9 +76,10 @@ int main(int argc, char** argv){
 
 		geometry_msgs::Twist vel_msg;
 		//nav_msgs::Path Msg = *(ros::topic::waitForMessage<nav_msgs::Path>("/plan", ros::Duration(0.25)));
-		
-		followWaypoints(stage_vel, vel_msg, tri_sqr);
-		
+		if(msg_received_and_executed)
+		{
+			followWaypoints(stage_vel, vel_msg, WayPoints);
+		}
 		
 		rate.sleep();
 	}
@@ -163,7 +165,10 @@ double computeAngleE(point point1, point robot_point, double currentTheta)
 }
 void PathMessageReceived(const nav_msgs::Path& msg)
 {
-	
+	int nmbrOfWaypoints = sizeof(msg.poses)/sizeof(msg.poses[0]);
+	pathMsg = msg;
+	msg_received_and_executed = true;
+	WayPoints = nmbrOfWaypoints;
 }
 
 point findCloserPoint(pair<point> pair_of_pts, point inspect)
@@ -179,7 +184,16 @@ point findCloserPoint(pair<point> pair_of_pts, point inspect)
 
 int followWaypoints(ros::Publisher stage_vel, geometry_msgs::Twist vel_msg,  int nr_of_waypoints)
 {
+	geometry_msgs::PoseStamped poses[nr_of_waypoints+1];
+	point cart_points[nr_of_waypoints+1];
+	
+	for(int i = 0; i < nr_of_waypoints; i++)
+	{
+		cart_points[i].x = pathMsg.poses[i].pose.position.x;
+		poses[i].pose.position.x = pathMsg.poses[i].pose.position.x;
+	}
 	//otherwise get them from global poses and cart_points
+	/*
 	geometry_msgs::PoseStamped poses[nr_of_waypoints+1];
 	point cart_points[nr_of_waypoints+1];
 	//fill out waypoints 
@@ -214,12 +228,14 @@ int followWaypoints(ros::Publisher stage_vel, geometry_msgs::Twist vel_msg,  int
 			cart_points[i].y = -2;
 			poses[i].pose.position.y = -2;
 			*/
+			/*
 			cart_points[i].x = 0;
 			poses[i].pose.position.x = 0;
 			cart_points[i].y = 0;
 			poses[i].pose.position.y = 0;
 		}		
 	}
+	*/
 	//x and y represent current position of the robot, th represents orientation of the robot	
 	double x = position_transform.getOrigin().x();
 	double y = position_transform.getOrigin().y();
@@ -251,8 +267,6 @@ int followWaypoints(ros::Publisher stage_vel, geometry_msgs::Twist vel_msg,  int
 		}
 		stage_vel.publish(vel_msg);
 		
-		//ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-			//<< "\nRho: " << rho);
 		if(rho <= 0.15)
 		{
 			coordinateCounter++;
@@ -305,6 +319,7 @@ int followWaypoints(ros::Publisher stage_vel, geometry_msgs::Twist vel_msg,  int
 				vel_msg.angular.z = 0;
 				stage_vel.publish(vel_msg);
 				coordinateCounter = -1;
+				msg_received_and_executed = false;
 				return coordinateCounter;
 			}
 		}
