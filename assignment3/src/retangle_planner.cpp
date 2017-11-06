@@ -24,8 +24,8 @@ int main(int argc, char** argv)
 	{
 		nav_msgs::Path msg;
 		ROS_INFO("RUNNING RECTANGULAR GLOBAL PATH PLANNER");
-		//msg = generateRectangularPath(22, 12, 5, 5, 5);
-		msg = generateRectangularPath(22, 12, 5, 5);
+		msg = generateRectangularPath(20, 10, 5, 5, 5);
+		//msg = generateRectangularPath(22, 12, 5, 5);
 
 		global_retangle_planner.publish(msg);
 
@@ -59,8 +59,8 @@ nav_msgs::Path Construct_Path_Msg(double* x, double *y, int nrOfPoints)
 	}
 
 	msg.poses = poses;
-	ROS_INFO_STREAM(
-				std::setprecision(2) << std::fixed << "\nPath Message: " << msg);
+	/*ROS_INFO_STREAM(
+	 std::setprecision(2) << std::fixed << "\nPath Message: " << msg);*/
 	return msg;
 }
 /**
@@ -78,12 +78,27 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 	int heightWeightPoints = (h - y) / weightPointDis;
 	int widthWeightPoints = (w - x) / weightPointDis;
 	int countPoints = 1;
-
-	int Points_max = heightWeightPoints * 2 + widthWeightPoints * 2 + 4;
-	double x_points[Points_max];
-	double y_points[Points_max];
 	double remainderWidth = remainder(w, weightPointDis);
 	double remainderHeight = remainder(h, weightPointDis);
+	int Points_max;
+	Points_max = heightWeightPoints * 2 + widthWeightPoints * 2 + 8;
+	//TODO - Debug this
+	/*if (remainderWidth != 0 && remainderHeight != 0)
+	{
+		Points_max = heightWeightPoints * 2 + widthWeightPoints * 2 + 8;
+	}
+	else if (remainderHeight != 0 || remainderWidth != 0)
+	{
+		Points_max = heightWeightPoints * 2 + widthWeightPoints * 2 + 6;
+	}
+	else
+	{
+		Points_max = heightWeightPoints * 2 + widthWeightPoints * 2 + 4;
+	}*/
+
+	double x_points[Points_max];
+	double y_points[Points_max];
+
 	//4 standard points
 	double x_cors[4];
 	double y_cors[4];
@@ -106,29 +121,29 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 
 	for (int i = 0; i <= widthWeightPoints + 1; i++)
 	{
-
+		y_points[countPoints] = y_cors[0];
 		double tempDis = x_cors[1] - x_points[countPoints - 1];
 		ROS_INFO_STREAM(
-							std::setprecision(2) << std::fixed << "\ntempDis: " << tempDis
-							<< "\nx_point(count - 1): " << x_points[countPoints - 1]);
+				std::setprecision(2) << std::fixed << "\ntempDis: " << tempDis
+						<< "\nx_point(count - 1): "
+						<< x_points[countPoints - 1]);
 		if (tempDis < weightPointDis)
 		{
 			x_points[countPoints] = x_points[countPoints - 1] + tempDis;
 			ROS_INFO_STREAM(
-					std::setprecision(2) << std::fixed << "\ncountPoint: " << countPoints
-					<< "\nx_point(count): " << x_points[countPoints]);
+					std::setprecision(2) << std::fixed << "\ncountPoint: "
+							<< countPoints << "\nx_point(count): "
+							<< x_points[countPoints]);
 
 		}
 		else
 		{
 			x_points[countPoints] = x_points[countPoints - 1] + weightPointDis;
 		}
-		y_points[countPoints] = y_cors[0];
 
 		countPoints++;
 
 	}
-
 
 	for (int i = 0; i <= heightWeightPoints + 1; i++)
 	{
@@ -153,7 +168,7 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 	//x_points[countPoints - 1] = x_cors[2];
 	//y_points[countPoints - 1] = y_cors[2];
 
-	for (int i = 0; i <= widthWeightPoints + 2; i++)
+	for (int i = 0; i <= widthWeightPoints + 1; i++)
 	{
 		y_points[countPoints] = y_cors[2];
 
@@ -179,7 +194,7 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 	for (int i = 0; i < heightWeightPoints + 1; i++)
 	{
 
-		x_points[countPoints] = x_cors[3];
+		x_points[countPoints] = x_cors[0];
 		double tempDis = y_points[countPoints - 1] - y_cors[0];
 		if (tempDis < weightPointDis)
 		{
