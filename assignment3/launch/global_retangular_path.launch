@@ -6,12 +6,6 @@
 		args="$(find assignment3)/world/empty.world" 
 	/>
 	
-	<node
-		pkg="assignment3"
-		type="steering_3"
-		name="steering_Node"
-		output="screen"
-	/>	
     
     <node
 		pkg="assignment3"
