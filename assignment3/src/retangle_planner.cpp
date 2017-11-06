@@ -17,7 +17,7 @@ int main(int argc, char** argv)
 	ros::NodeHandle nh;
 
 	ros::Publisher global_retangle_planner = nh.advertise<nav_msgs::Path> (
-			"/path", 1000);
+			"/plan", 1000);
 
 	ros::Rate rate(1000.0);
 	ros::Rate loop_rate(10);
@@ -77,7 +77,7 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 	int widthWeightPoints = (w - x) / weightPointDis;
 	int countPoints = 1;
 
-	int Points_max = heightWeightPoints * 2 + widthWeightPoints * 2 + 4;
+	int Points_max = heightWeightPoints * 2 + widthWeightPoints * 2 + 8;
 	double x_points[Points_max];
 	double y_points[Points_max];
 	double remainderWidth = remainder(w, weightPointDis);
@@ -102,7 +102,7 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 	x_points[0] = x;
 	y_points[0] = y;
 
-	for (int i = 0; i <= widthWeightPoints + 2; i++)
+	for (int i = 0; i <= widthWeightPoints + 1; i++)
 	{
 
 		double tempDis = x_cors[1] - x_points[countPoints - 1];
@@ -127,11 +127,13 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 
 	}
 
-	for (int i = 0; i < heightWeightPoints; i++)
+
+	for (int i = 0; i <= heightWeightPoints + 1; i++)
 	{
 
 		x_points[countPoints] = x_cors[1];
-		double tempDis = y_cors[1] - y_points[countPoints - 1];
+
+		double tempDis = y_cors[2] - y_points[countPoints - 1];
 
 		if (tempDis < weightPointDis)
 		{
@@ -146,10 +148,10 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 		}
 		countPoints++;
 	}
-	x_points[countPoints - 1] = x_cors[2];
-	y_points[countPoints - 1] = y_cors[2];
+	//x_points[countPoints - 1] = x_cors[2];
+	//y_points[countPoints - 1] = y_cors[2];
 
-	for (int i = 0; i < widthWeightPoints; i++)
+	for (int i = 0; i <= widthWeightPoints; i++)
 	{
 
 		double tempDis = x_points[countPoints - 1] - x_cors[3];
@@ -168,8 +170,8 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 		countPoints++;
 
 	}
-	x_points[countPoints] = x_cors[3];
-	y_points[countPoints] = y_cors[3];
+	//x_points[countPoints] = x_cors[3];
+	//y_points[countPoints] = y_cors[3];
 
 	for (int i = 0; i < heightWeightPoints; i++)
 	{
