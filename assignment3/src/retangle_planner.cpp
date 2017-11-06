@@ -10,6 +10,7 @@
 nav_msgs::Path Construct_Path_Msg(double* x, double *y, int nrOfPoints);
 nav_msgs::Path generateRectangularPath(double w, double h,
 		double weightPointDis, double x, double y);
+nav_msgs::Path generateRectangularPath(double w, double h, double x, double y);
 int main(int argc, char** argv)
 {
 	ros::init(argc, argv, "global_planner_reg");
@@ -25,11 +26,13 @@ int main(int argc, char** argv)
 	{
 		nav_msgs::Path msg;
 		ROS_INFO("RUNNING RECTANGULAR GLOBAL PATH PLANNER");
-		msg = generateRectangularPath(22, 12, 5, 5, 5);
+		//msg = generateRectangularPath(22, 12, 5, 5, 5);
+		msg = generateRectangularPath(22, 12, 5, 5);
 
 		global_retangle_planner.publish(msg);
 
 		ros::spinOnce();
+		//ros::spin();
 	}
 
 	return 0;
@@ -197,3 +200,26 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 
 	return Construct_Path_Msg(x_points, y_points, Points_max);
 }
+
+nav_msgs::Path generateRectangularPath(double w, double h, double x, double y)
+{
+	double x_cors[4];
+	double y_cors[4];
+
+	//TODO this one can be improved in such a way that the nr of centers point can be added
+	//init fours point, in a clock-wise order
+	x_cors[0] = x;
+	y_cors[0] = y;
+
+	x_cors[1] = x + w;
+	y_cors[1] = y;
+
+	x_cors[2] = x + w;
+	y_cors[2] = y + h;
+
+	x_cors[3] = x;
+	y_cors[3] = y + h;
+
+	return Construct_Path_Msg(x_cors, y_cors, 4);
+}
+
