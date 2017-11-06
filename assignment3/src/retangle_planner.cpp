@@ -18,10 +18,8 @@ int main(int argc, char** argv)
 	ros::NodeHandle nh;
 
 	ros::Publisher global_retangle_planner = nh.advertise<nav_msgs::Path> (
-			"/plan", 1000);
+			"/plan", 1);
 
-	ros::Rate rate(1000.0);
-	ros::Rate loop_rate(10);
 	while (ros::ok())
 	{
 		nav_msgs::Path msg;
