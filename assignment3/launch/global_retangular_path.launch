@@ -1,23 +1,8 @@
 <launch>
     <node
-		pkg="stage_ros"
-		type="stageros"
-		name="emptyStage"
-		args="$(find assignment3)/world/empty.world" 
-	/>
-	
-    
-    <node
 		pkg="assignment3"
 		type="global_planner_reg"
 		name="global_planner"
 		output="screen"
 	/>		
-	
-	<node 
-		pkg="tf" 
-		type="static_transform_publisher" 
-		name="static_Publisher" 
-		args="0 0 0 0 0 0 1 map odom 100" 
-	/>
 </launch>

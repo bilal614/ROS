@@ -25,6 +25,7 @@ int main(int argc, char** argv)
 		nav_msgs::Path msg;
 		ROS_INFO("RUNNING RECTANGULAR GLOBAL PATH PLANNER");
 		msg = generateRectangularPath(20, 10, 5, 5, 5);
+		//msg = generateRectangularPath(22, 12, 5, 5, 5);
 		//msg = generateRectangularPath(22, 12, 5, 5);
 
 		global_retangle_planner.publish(msg);
@@ -75,27 +76,25 @@ nav_msgs::Path Construct_Path_Msg(double* x, double *y, int nrOfPoints)
 nav_msgs::Path generateRectangularPath(double w, double h,
 		double weightPointDis, double x, double y)
 {
-	int heightWeightPoints = (h - y) / weightPointDis;
-	int widthWeightPoints = (w - x) / weightPointDis;
+	int heightWeightPoints = h / weightPointDis;
+	ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "heightWeightPoints: " << heightWeightPoints);
+	int widthWeightPoints = w / weightPointDis + 1;
+	ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "widthWeightPoints: " << widthWeightPoints);
 	int countPoints = 1;
 	double remainderWidth = remainder(w, weightPointDis);
 	double remainderHeight = remainder(h, weightPointDis);
+	if(remainderWidth > 0)
+		widthWeightPoints ++;
+	ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "widthWeightPoints: " << widthWeightPoints
+			<< ", remainderWidth: " << remainderWidth);
+	if(remainderHeight > 0)
+		heightWeightPoints ++;
+	ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "heightWeightPoints: " << heightWeightPoints
+			<< ", remainderHeight: " << remainderHeight);
 	int Points_max;
-	Points_max = heightWeightPoints * 2 + widthWeightPoints * 2 + 8;
+	Points_max = heightWeightPoints * 2 + widthWeightPoints * 2 - 1; // minus the starting point
 	//TODO - Debug this
-	/*if (remainderWidth != 0 && remainderHeight != 0)
-	{
-		Points_max = heightWeightPoints * 2 + widthWeightPoints * 2 + 8;
-	}
-	else if (remainderHeight != 0 || remainderWidth != 0)
-	{
-		Points_max = heightWeightPoints * 2 + widthWeightPoints * 2 + 6;
-	}
-	else
-	{
-		Points_max = heightWeightPoints * 2 + widthWeightPoints * 2 + 4;
-	}*/
-
+	ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "pointMax: " << Points_max);
 	double x_points[Points_max];
 	double y_points[Points_max];
 
@@ -119,7 +118,7 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 	x_points[0] = x;
 	y_points[0] = y;
 
-	for (int i = 0; i <= widthWeightPoints + 1; i++)
+	for (int i = 1; i < widthWeightPoints; i++)
 	{
 		y_points[countPoints] = y_cors[0];
 		double tempDis = x_cors[1] - x_points[countPoints - 1];
@@ -142,10 +141,9 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 		}
 
 		countPoints++;
-
 	}
 
-	for (int i = 0; i <= heightWeightPoints + 1; i++)
+	for (int i = 0; i < heightWeightPoints; i++)
 	{
 
 		x_points[countPoints] = x_cors[1];
@@ -168,7 +166,7 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 	//x_points[countPoints - 1] = x_cors[2];
 	//y_points[countPoints - 1] = y_cors[2];
 
-	for (int i = 0; i <= widthWeightPoints + 1; i++)
+	for (int i = 1; i < widthWeightPoints; i++)
 	{
 		y_points[countPoints] = y_cors[2];
 
@@ -188,10 +186,9 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 		countPoints++;
 
 	}
-	//x_points[countPoints] = x_cors[3];
-	//y_points[countPoints] = y_cors[3];
 
-	for (int i = 0; i < heightWeightPoints + 1; i++)
+
+	for (int i = 0; i < heightWeightPoints; i++)
 	{
 
 		x_points[countPoints] = x_cors[0];
@@ -210,6 +207,9 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 		y_points[countPoints] = y_points[countPoints - 1] - weightPointDis;
 		countPoints++;
 	}
+
+	x_points[countPoints - 1] = x_cors[0];
+    y_points[countPoints - 1] = y_cors[0];
 
 	return Construct_Path_Msg(x_points, y_points, Points_max);
 }
