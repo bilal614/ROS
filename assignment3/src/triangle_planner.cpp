@@ -20,6 +20,7 @@ nav_msgs::Path generateTrianglePath(point p1, point p2, point p3,
 double calculateDistance(point p1, point p2);
 point calculateMidPoint(point p1, point p2);
 bool checkforDistance(std::vector<point> points, double weightPointDis);
+std::vector<point> generatedPoints(point p1, point p2, double weightPointDis);
 
 int main(int argc, char** argv)
 {
@@ -72,8 +73,8 @@ nav_msgs::Path Construct_Path_Msg(double* x, double *y, int nrOfPoints)
 		poses.at(i).pose.position.y = y[i];
 		ROS_INFO_STREAM(
 				std::setprecision(2) << std::fixed << "\n << x: " << "[" << i
-						<< "] = " << x[i] << "\n << y: " << "[" << i << "] = "
-						<< y[i]);
+				<< "] = " << x[i] << "\n << y: " << "[" << i << "] = "
+				<< y[i]);
 
 	}
 
@@ -94,29 +95,6 @@ nav_msgs::Path Construct_Path_Msg(double* x, double *y, int nrOfPoints)
 nav_msgs::Path generateTrianglePath(point p1, point p2, point p3,
 		double weightPointDis)
 {
-	int Points_max = 3;
-	ROS_INFO_STREAM(
-			std::setprecision(2) << std::fixed << "pointMax: " << Points_max);
-
-	double x_points[Points_max];
-	double y_points[Points_max];
-
-	//4 standard points
-	double x_cors[3];
-	double y_cors[3];
-	x_cors[0] = p1.x;
-	y_cors[0] = p1.y;
-
-	x_cors[1] = p2.x;
-	y_cors[1] = p2.y;
-
-	x_cors[2] = p3.x;
-	y_cors[2] = p3.y;
-
-	//init first point,
-	x_points[0] = p1.x;
-	y_points[0] = p1.y;
-
 	//For the first edge (p1,p2)
 	double dis_p12 = calculateDistance(p1, p2);
 	ROS_INFO_STREAM(
@@ -129,47 +107,81 @@ nav_msgs::Path generateTrianglePath(point p1, point p2, point p3,
 	double dis_p31 = calculateDistance(p3, p1);
 	ROS_INFO_STREAM(
 			std::setprecision(2) << std::fixed << "dis_p31: " << dis_p31);
-	//Find the vecter of all points
-	std::vector<point> points;
-	points.push_back(p1);
-	points.push_back(p2);
-	ROS_INFO_STREAM(
-			std::setprecision(2) << std::fixed << "points size init: "
-					<< points.size());
+
+	std::vector<point> points_p1_p2 = generatedPoints(p1, p2, weightPointDis);
+	std::vector<point> points_p2_p3 = generatedPoints(p2, p3, weightPointDis);
+	std::vector<point> points_p3_p1 = generatedPoints(p3, p1, weightPointDis);
+	int Points_max = points_p1_p2.size() + points_p2_p3.size() + points_p3_p1.size() - 2;
+		ROS_INFO_STREAM(
+				std::setprecision(2) << std::fixed << "pointMax: " << Points_max);
+	double x_points[Points_max];
+	double y_points[Points_max];
 	int count = 0;
 
-	/*Testing
-	 point midPoint = calculateMidPoint(points[0], points[1]);
-	 points.insert(points.begin() + 1, midPoint);
-	 bool checkForDis = checkforDistance(points, 10);
-	 ROS_INFO_STREAM(
-	 std::setprecision(2) << std::fixed << "checkForDis: " << checkForDis);*/
 
-	//TODO - debug this
-	/*while (!checkforDistance(points, weightPointDis)) // means still have distance bigger than weight point distance
+	for(int i = 0; i < points_p1_p2.size(); i++)
 	{
-		for (int i = 1; i < points.size(); i++)
-		{
-			point midPoint = calculateMidPoint(points[i - 1], points[i]);
+		x_points[count] = points_p1_p2[i].x;
+		y_points[count] = points_p1_p2[i].y;
+		count++;
+	}
 
-			ROS_INFO_STREAM(
-					std::setprecision(2) << std::fixed <<"midPoint.x: " << midPoint.x
-					<<", midPoint.y: " << midPoint.y);
-			points.insert(points.begin() + i, midPoint);
-		}
-	}*/
 
-	for (int i = 0; i < points.size(); i++)
+	for(int i = 1; i < points_p2_p3.size() - 1; i++)
 	{
-		ROS_INFO_STREAM(
-				std::setprecision(2) << std::fixed << "point[" << i << "].x: "
-						<< points[i].x << ", point[" << i << "].y: "
-						<< points[i].y);
+		x_points[count] = points_p2_p3[i].x;
+		y_points[count] = points_p2_p3[i].y;
+		count++;
+	}
+
+
+	for(int i = 1; i < points_p3_p1.size(); i++)
+	{
+		x_points[count] = points_p1_p2[i].x;
+		y_points[count] = points_p1_p2[i].y;
+		count++;
 	}
 
 	return Construct_Path_Msg(x_points, y_points, Points_max);
 }
+std::vector<point> generatedPoints(point p1, point p2, double weightPointDis)
+{
+	//Find the vecter of all points
+	std::vector<point> points_between_p1_p2;
+	points_between_p1_p2.push_back(p1);
+	points_between_p1_p2.push_back(p2);
+	ROS_INFO_STREAM(
+			std::setprecision(2) << std::fixed << "points size init: "
+			<< points_between_p1_p2.size());
+	int count = 0;
+	while (!checkforDistance(points_between_p1_p2, weightPointDis)) // means still have distance bigger than weight point distance
+	{
+		int point_size = points_between_p1_p2.size();
+		for (int i = 1; i < point_size; i++)
+		{
+			if (calculateDistance(points_between_p1_p2[i - 1], points_between_p1_p2[i]) > weightPointDis)
+			{
+				point midPoint = calculateMidPoint(points_between_p1_p2[i - 1], points_between_p1_p2[i]);
 
+				ROS_INFO_STREAM(
+						std::setprecision(2) << std::fixed <<"midPoint.x: " << midPoint.x
+						<<", midPoint.y: " << midPoint.y);
+
+				points_between_p1_p2.insert(points_between_p1_p2.begin() + i, midPoint);
+			}
+		}
+	}
+
+	for (int i = 0; i < points_between_p1_p2.size(); i++)
+	{
+		ROS_INFO_STREAM(
+				std::setprecision(2) << std::fixed << "point[" << i << "].x: "
+				<< points_between_p1_p2[i].x << ", point[" << i << "].y: "
+				<< points_between_p1_p2[i].y);
+	}
+
+	return points_between_p1_p2;
+}
 double calculateDistance(point p1, point p2)
 {
 	return sqrt(pow(p2.x - p1.x, 2) + pow(p2.y - p1.y, 2));
