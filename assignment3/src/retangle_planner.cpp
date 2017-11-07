@@ -18,19 +18,19 @@ int main(int argc, char** argv)
 	ros::NodeHandle nh;
 
 	ros::Publisher global_retangle_planner = nh.advertise<nav_msgs::Path> (
-			"/plan", 1);
+			"/plan", 10);
 
 	while (ros::ok())
 	{
 		nav_msgs::Path msg;
 		ROS_INFO("RUNNING RECTANGULAR GLOBAL PATH PLANNER");
 		//msg = generateRectangularPath(22, 12, 5, 5, 5);
-		msg = generateRectangularPath(22, 12, 5, 5);
+		msg = generateRectangularPath(3, 2, 8, 2);
 
 		global_retangle_planner.publish(msg);
 
-		//ros::spinOnce();
-		ros::spin();
+		ros::spinOnce();
+		//ros::spin();
 	}
 
 	return 0;

@@ -9,7 +9,7 @@
 #include <nav_msgs/Path.h>
 
 /**Global Variables**/
-const double lookaheadRadius = sqrt(64.0);
+const double lookaheadRadius = sqrt(625.0);
 nav_msgs::Path pathMsg;
 struct point {double x; double y;};
 template<typename T> struct pair{ T p1; T p2; };
@@ -20,7 +20,8 @@ int WayPoints = 0;
 tf::StampedTransform transform;
 tf::StampedTransform position_transform;
 bool msg_received_and_executed = false;
-
+int coordinateCounter = -1;
+bool rec_msg = false;
 
 /**Functions**/
 double getSlope_L(double x1, double x2, double y1, double y2);//returns the slope of a line, constructed from 2 given points
@@ -30,7 +31,6 @@ pair<point> solveCircleLineQuad(double x1, double x2, double y1, double y2);//So
 double computeAngleE(point point1, point point2, double currentTheta);
 void PathMessageReceived(const nav_msgs::Path& msg);
 point findCloserPoint(pair<point> pair_of_pts, point inspect);
-int coordinateCounter = -1;
 int followWaypoints(ros::Publisher stage_vel, geometry_msgs::Twist vel_msg,  int nr_of_waypoints);
 
 
@@ -45,7 +45,7 @@ int main(int argc, char** argv){
 
 	ros::Publisher stage_vel = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1000);
 	
-	ros::Subscriber path_listener = nh.subscribe("/plan", 1000, &PathMessageReceived);
+	ros::Subscriber path_listener = nh.subscribe("/plan", 10, &PathMessageReceived);
 	
 	tf::TransformListener listener;
 	tf::TransformListener pose_listener;//For getting current position
@@ -75,17 +75,18 @@ int main(int argc, char** argv){
 			*/
 
 		geometry_msgs::Twist vel_msg;
-		nav_msgs::Path Msg = *(ros::topic::waitForMessage<nav_msgs::Path>("/plan", ros::Duration(0.25)));
+		nav_msgs::Path Msg = *(ros::topic::waitForMessage<nav_msgs::Path>("/plan", nh));
 		//msg_received_and_executed = true;
+		//followWaypoints(stage_vel, vel_msg, WayPoints);
 		if(msg_received_and_executed)
 		{
 			followWaypoints(stage_vel, vel_msg, WayPoints);
 			//followWaypoints(stage_vel, vel_msg, 4);
 		}
-		
-		rate.sleep();
 		ros::spinOnce();
+		rate.sleep();
 	}
+	//ros::spin();
 	return 0;
 };
 
@@ -168,12 +169,17 @@ double computeAngleE(point point1, point robot_point, double currentTheta)
 }
 void PathMessageReceived(const nav_msgs::Path& msg)
 {
-	int nmbrOfWaypoints = sizeof(msg.poses)/sizeof(msg.poses[0]);
-	pathMsg = msg;
-	msg_received_and_executed = true;
-	WayPoints = nmbrOfWaypoints;
-	ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-		<< "\nPath Message: " << pathMsg);
+	if(rec_msg == false)
+	{
+		int nmbrOfWaypoints = sizeof(msg.poses)/sizeof(msg.poses[0]);
+		
+		pathMsg = msg;
+		msg_received_and_executed = true;
+		WayPoints = nmbrOfWaypoints;
+		ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+			<< "\nPath Message: " << pathMsg);
+		rec_msg = true;
+	}
 }
 
 point findCloserPoint(pair<point> pair_of_pts, point inspect)
@@ -268,6 +274,15 @@ int followWaypoints(ros::Publisher stage_vel, geometry_msgs::Twist vel_msg,  int
 		rho =  sqrt(pow((robotPoint.x-cart_points[coordinateCounter+1].x), 2) + 
 		pow((robotPoint.y-cart_points[coordinateCounter+1].y), 2));
 		
+		ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+		<< "Result p1: " << Result.
+		);
+		ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+			<< "\nCurrent Position: x-position: " << x
+			<<", y-position:" << y
+			<< ", angleE: " << angleE*180/M_PI
+			<< ", rotation: " << th*180/M_PI
+			<< ", coordinateCounter: " << coordinateCounter);
 		if(th == angleE)
 		{
 			vel_msg.angular.z = 0;
@@ -277,6 +292,7 @@ int followWaypoints(ros::Publisher stage_vel, geometry_msgs::Twist vel_msg,  int
 		if(rho <= 0.15)
 		{
 			coordinateCounter++;
+			/*
 			ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 			<< "\nCurrent Position: x-position: " << x
 			<<", y-position:" << y
@@ -284,6 +300,7 @@ int followWaypoints(ros::Publisher stage_vel, geometry_msgs::Twist vel_msg,  int
 			<< ", angleE: " << angleE*180/M_PI
 			<< ", rotation: " << th*180/M_PI
 			<< ", coordinateCounter: " << coordinateCounter);
+			*/
 		}
 	}
 	else
@@ -314,12 +331,14 @@ int followWaypoints(ros::Publisher stage_vel, geometry_msgs::Twist vel_msg,  int
 		if(rho <= 0.35)
 		{
 			coordinateCounter++;
+			/*
 			ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 			<< "\nCurrent Position: x-position: " << x
 			<<", y-position:" << y
 			<< ", rotation: " << th
 			<< ", angleE: " << angleE
 			<< ", coordinateCounter: " << coordinateCounter);
+			*/
 			if(coordinateCounter >= nr_of_waypoints)
 			{
 				vel_msg.linear.x = 0;
