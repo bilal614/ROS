@@ -26,7 +26,7 @@ int main(int argc, char** argv)
 		ROS_INFO("RUNNING RECTANGULAR GLOBAL PATH PLANNER");
 
 		//msg = generateRectangularPath(22, 12, 5, 5, 5);
-		msg = generateRectangularPath(3, 2, 8, 2);
+		msg = generateRectangularPath(3, 3, 3, 2);
 
 		global_retangle_planner.publish(msg);
 
