@@ -127,7 +127,7 @@ nav_msgs::Path generateTrianglePath(point p1, point p2, point p3,
 	}
 
 
-	for(int i = 1; i < points_p2_p3.size() - 1; i++)
+	for(int i = 1; i < points_p2_p3.size(); i++)
 	{
 		x_points[count] = points_p2_p3[i].x;
 		y_points[count] = points_p2_p3[i].y;
@@ -137,8 +137,8 @@ nav_msgs::Path generateTrianglePath(point p1, point p2, point p3,
 
 	for(int i = 1; i < points_p3_p1.size(); i++)
 	{
-		x_points[count] = points_p1_p2[i].x;
-		y_points[count] = points_p1_p2[i].y;
+		x_points[count] = points_p3_p1[i].x;
+		y_points[count] = points_p3_p1[i].y;
 		count++;
 	}
 
