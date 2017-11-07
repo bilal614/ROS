@@ -17,6 +17,7 @@ int tri_sqr = 3;
 std::vector<geometry_msgs::PoseStamped> poses;
 std::vector<point> cart_points;
 bool rec_msg = false;
+geometry_msgs::Twist vel_msg;
 
 double getSlope_L(double x1, double x2, double y1, double y2);//returns the slope of a line, constructed from 2 given points
 double getIntercept_L(double x, double y, double slope);//returns the y-intercept value of a line, given a point and slope
@@ -31,7 +32,7 @@ int main(int argc, char** argv){
 	ros::init(argc, argv, "local_planner");
 
 	ros::NodeHandle nh;
-  
+	/*
 	//geometry_msgs::PoseStamped poses[(tri_sqr+1)];
 	//point cart_points[(tri_sqr+1)];
 	poses.resize(tri_sqr+1);
@@ -71,14 +72,14 @@ int main(int argc, char** argv){
 			poses[i].pose.position.y = 0;
 			cart_points[i].y = 0;
 		}
-		*/
+		*//*
 		ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 			<< "\ncart_points: i: " << i
 			<<", x: " << cart_points[i].x
 			<< ", y: " << cart_points[i].y);
 			
 	} 
-	
+	*/
 	
 	ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 			<< "\nPath Message: " << pathMsg);
@@ -105,118 +106,118 @@ int main(int argc, char** argv){
 		  ros::Duration(1.0).sleep();
 		  continue;
 		}
-		/*
+		/**************Uncomment for Testing with global_planner nodes *********/
 		nav_msgs::Path Msg = *(ros::topic::waitForMessage<nav_msgs::Path>("/plan", nh));
 		if(!rec_msg)
 		{
 			ros::spinOnce();
 		}
-		*/
-		//x and y represent current position of the robot, th represents orientation of the robot	
-		double x = position_transform.getOrigin().x();
-		double y = position_transform.getOrigin().y();
-		double th = tf::getYaw(position_transform.getRotation());
-		/*
-		ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-			<< "\nCurrent Position: x-position: " << x
-			<<", y-position:" << y
-			<< ", rotation: " << th);
-			*/
-		
-		//steering.setGoal(transform.getOrigin().x(), transform.getOrigin().y(), M_PI);
-		geometry_msgs::Twist vel_msg;
-		
-		float deltaX = transform.getOrigin().x() - position_transform.getOrigin().x();
-		float deltaY = transform.getOrigin().y() - position_transform.getOrigin().y();
-		
-		point robotPoint;
-		robotPoint.x = x;
-		robotPoint.y = y;
-		float rho;
-		pair<point> Result;	
-		point closesPt;
-		double angleE;
-		vel_msg.linear.x = 0.25;
-		if(coordinateCounter == -1)
-		{
-			Result = solveCircleLineQuad(robotPoint.x, 
-				cart_points[coordinateCounter+1].x, robotPoint.y, cart_points[coordinateCounter+1].y,
-				robotPoint);
-				
-			closesPt = findCloserPoint(Result, cart_points[coordinateCounter+1]);
-			angleE = computeAngleE(closesPt, robotPoint, th); 
-			rho =  sqrt(pow((robotPoint.x-cart_points[coordinateCounter+1].x), 2) + 
-			pow((robotPoint.y-cart_points[coordinateCounter+1].y), 2));
-			vel_msg.angular.z = 2.5*angleE;
-			vel_msg.linear.x += (rho*0.25/lookaheadRadius);
-			//if(abs(th-angleE) < 0.005)
-			if(th == angleE)
-			{
-				vel_msg.angular.z = 0;
-			}
-			stage_vel.publish(vel_msg);
-			
-			//ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-				//<< "\nRho: " << rho);
-			if(rho <= 0.25)
-			{
-				ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-				<< "\nCurrent Position: x-position: " << x
-				<<", y-position:" << y
-				<< ", rotation: " << th
-				<< ", angleE: " << angleE*180/M_PI
-				<< ", rotation: " << th*180/M_PI);
-				coordinateCounter++;
-			}
-		}
+		/********************************************************************/
 		else
-		{
-
-			Result = solveCircleLineQuad(cart_points[coordinateCounter].x, 
-				cart_points[coordinateCounter+1].x, 
-				cart_points[coordinateCounter].y, 
-				cart_points[coordinateCounter+1].y, robotPoint);
+		{	
+			//x and y represent current position of the robot, th represents orientation of the robot	
+			double x = position_transform.getOrigin().x();
+			double y = position_transform.getOrigin().y();
+			double th = tf::getYaw(position_transform.getRotation());
 			/*
 			ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-			<< "\nResult: p1: (" << Result.p1.x << ", " << Result.p1.y << "), p2: (" 
-			<< Result.p2.x << ", " << Result.p2.y << ")");	
-			*/
-			closesPt = findCloserPoint(Result, cart_points[coordinateCounter+1]);
-			//closesPt.x += robotPoint.x;
-			//closesPt.y += robotPoint.y;
-			angleE = computeAngleE(closesPt, robotPoint, th); 
-			/*
-			ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-			<< "\nClosest Point: x: " << closesPt.x
-			<<", y:" << closesPt.y
-			<< ", angleE: " << angleE*180/M_PI);
-			*/
-			rho =  sqrt(pow((robotPoint.x-cart_points[coordinateCounter+1].x), 2) + 
-			pow((robotPoint.y-cart_points[coordinateCounter+1].y), 2));
-			vel_msg.angular.z = 2.5*angleE;
-			vel_msg.linear.x += (rho*0.25/lookaheadRadius);
-			
-			if(th == angleE)
-			{
-				vel_msg.angular.z = 0;
-			}
-			stage_vel.publish(vel_msg);
-			if(rho <= 0.45)
-			{
-				ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 				<< "\nCurrent Position: x-position: " << x
 				<<", y-position:" << y
-				<< ", rotation: " << th
-				<< ", angleE: " << angleE
-				<< ", coordinateCounter: " << coordinateCounter);
-				coordinateCounter++;
-				if(coordinateCounter >= tri_sqr)
+				<< ", rotation: " << th);
+				*/
+			
+			
+			float deltaX = transform.getOrigin().x() - position_transform.getOrigin().x();
+			float deltaY = transform.getOrigin().y() - position_transform.getOrigin().y();
+			
+			point robotPoint;
+			robotPoint.x = x;
+			robotPoint.y = y;
+			float rho;
+			pair<point> Result;	
+			point closesPt;
+			double angleE;
+			vel_msg.linear.x = 0.25;
+			if(coordinateCounter == -1)
+			{
+				Result = solveCircleLineQuad(robotPoint.x, 
+					cart_points[coordinateCounter+1].x, robotPoint.y, cart_points[coordinateCounter+1].y,
+					robotPoint);
+					
+				closesPt = findCloserPoint(Result, cart_points[coordinateCounter+1]);
+				angleE = computeAngleE(closesPt, robotPoint, th); 
+				rho =  sqrt(pow((robotPoint.x-cart_points[coordinateCounter+1].x), 2) + 
+				pow((robotPoint.y-cart_points[coordinateCounter+1].y), 2));
+				vel_msg.angular.z = 2.5*angleE;
+				vel_msg.linear.x += (rho*0.25/lookaheadRadius);
+				//if(abs(th-angleE) < 0.005)
+				if(th == angleE)
 				{
-					return 0;
+					vel_msg.angular.z = 0;
+				}
+				stage_vel.publish(vel_msg);
+				
+				//ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+					//<< "\nRho: " << rho);
+				if(rho <= 0.25)
+				{
+					ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+					<< "\nCurrent Position: x-position: " << x
+					<<", y-position:" << y
+					<< ", rotation: " << th
+					<< ", angleE: " << angleE*180/M_PI
+					<< ", rotation: " << th*180/M_PI);
+					coordinateCounter++;
+				}
+			}
+			else
+			{
+
+				Result = solveCircleLineQuad(cart_points[coordinateCounter].x, 
+					cart_points[coordinateCounter+1].x, 
+					cart_points[coordinateCounter].y, 
+					cart_points[coordinateCounter+1].y, robotPoint);
+				/*
+				ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+				<< "\nResult: p1: (" << Result.p1.x << ", " << Result.p1.y << "), p2: (" 
+				<< Result.p2.x << ", " << Result.p2.y << ")");	
+				*/
+				closesPt = findCloserPoint(Result, cart_points[coordinateCounter+1]);
+				//closesPt.x += robotPoint.x;
+				//closesPt.y += robotPoint.y;
+				angleE = computeAngleE(closesPt, robotPoint, th); 
+				/*
+				ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+				<< "\nClosest Point: x: " << closesPt.x
+				<<", y:" << closesPt.y
+				<< ", angleE: " << angleE*180/M_PI);
+				*/
+				rho =  sqrt(pow((robotPoint.x-cart_points[coordinateCounter+1].x), 2) + 
+				pow((robotPoint.y-cart_points[coordinateCounter+1].y), 2));
+				vel_msg.angular.z = 2.5*angleE;
+				vel_msg.linear.x += (rho*0.25/lookaheadRadius);
+				
+				if(th == angleE)
+				{
+					vel_msg.angular.z = 0;
+				}
+				stage_vel.publish(vel_msg);
+				if(rho <= 0.45)
+				{
+					ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+					<< "\nCurrent Position: x-position: " << x
+					<<", y-position:" << y
+					<< ", rotation: " << th
+					<< ", angleE: " << angleE
+					<< ", coordinateCounter: " << coordinateCounter);
+					coordinateCounter++;
+					if(coordinateCounter >= tri_sqr)
+					{
+						return 0;
+					}
 				}
 			}
 		}
-		
 		//testing
 		
 		rate.sleep();
@@ -325,15 +326,15 @@ void PathMessageReceived(const nav_msgs::Path& msg)
 		ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 				<< "\nWayPoints: " << nmbrOfWaypoints);
 		pathMsg = msg;
-		/*************************/
-		/*
-		WayPoints = nmbrOfWaypoints+1;
+		/**************Uncomment for Testing with global_planner nodes *********/
 		
-		poses.resize(WayPoints);
-		cart_points.resize(WayPoints);
-		for(int i = 0; i < WayPoints; i++)
+		tri_sqr = nmbrOfWaypoints;
+		
+		poses.resize(tri_sqr+1);
+		cart_points.resize(tri_sqr+1);
+		for(int i = 0; i < tri_sqr+1; i++)
 		{
-			if(i == WayPoints)
+			if(i == tri_sqr)
 			{
 				cart_points[i].x = pathMsg.poses[0].pose.position.x;
 				poses[i].pose.position.x = pathMsg.poses[0].pose.position.x;
@@ -348,8 +349,8 @@ void PathMessageReceived(const nav_msgs::Path& msg)
 				<<", x: " << cart_points[i].x
 				<< ", y: " << cart_points[i].y);
 		}
-		*/
-		/**************************/
+		
+		/**********************************************/
 		//ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 			//<< "\nPath Message: " << pathMsg);
 			
@@ -372,84 +373,3 @@ point findCloserPoint(pair<point> pair_of_pts, point inspect)
 	else
 		return pair_of_pts.p2;
 }
-/*
-bool goToPoint(point point1, point robot_point, double currentTheta)
-{
-	
-}
-*/
-
-/*
-		bool reached = false;
-		float rho; 
-		for(int i = 0; i < 3; i++)
-		{
-			while(!reached)
-			{
-				th = tf::getYaw(position_transform.getRotation());
-				point robotPoint;
-				robotPoint.x = x;
-				robotPoint.y = y;
-				rho =  sqrt(pow((robotPoint.x-cart_points[i+1].x), 2) + pow((robotPoint.y-cart_points[i+1].y), 2));
-
-				pair<point> Result = solveCircleLineQuad(cart_points[i].x, cart_points[i+1].x, cart_points[i].y, cart_points[i+1].y);
-				point closesPt = findCloserPoint(Result, cart_points[i+1]);
-				double angleE = computeAngleE(closesPt, robotPoint, th); 
-				vel_msg.angular.z = 0.75*angleE;
-				stage_vel.publish(vel_msg);
-				
-				if(th == angleE)
-				{
-					vel_msg.angular.z = 0;
-				}
-				
-				ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-					<< "\nPoint1: x = " << Result.p1.x 
-					<< ", y = " << Result.p1.y
-					<< "\nPoint2: x = " << Result.p2.x 
-					<< ", y = " << Result.p2.y
-					<< ", angle e = " << angleE
-					<< ", theta = " << th);
-					
-				/*
-				if(rho < 0.15)
-				{
-					if(i == 3)
-					{
-						reached = true;
-						vel_msg.angular.z = 0;
-						vel_msg.linear.x = 0;
-						stage_vel.publish(vel_msg);
-					}
-					break;
-				}
-			}
-		}
-		*/
-		
-		/* testing
-		pair<point> Result = solveCircleLineQuad(4, -4, -1, 4);
-		
-		ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-			<< "\nPoint1: x = " << Result.p1.x 
-			<< ", y = " << Result.p1.y
-			<< "\nPoint2: x = " << Result.p2.x 
-			<< ", y = " << Result.p2.y);
-			
-		point robotPoint;
-		robotPoint.x = x;
-		robotPoint.y = y;
-		double angleE = computeAngleE(Result.p1, robotPoint, th);
-		
-		ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-			<< "\nAngle e: " << angleE*180/M_PI
-			<< ", robot point: x: " << robotPoint.x
-			<< ", y: " << robotPoint.y);
-			
-		for(int i = 0; i < 4; i++)
-		{
-			ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-				<< "\nSquare Points i(" << i << "): x: " << cart_points[i].x
-				<<", y:" << cart_points[i].y);
-		}
-		*/
