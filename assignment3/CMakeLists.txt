@@ -168,7 +168,7 @@ include_directories(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-add_executable(steering_3 src/steering.hpp src/steering.cpp src/steering_tf_listener.cpp)
+add_executable(steering_3 src/steering.hpp src/steering.cpp src/steering_tf_listener_v2.cpp)
 add_executable(global_planner_reg src/retangle_planner.cpp)
 add_executable(global_planner_trig src/triangle_planner.cpp)
 target_link_libraries(steering_3 ${catkin_LIBRARIES})
