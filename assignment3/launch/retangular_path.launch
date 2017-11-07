@@ -1,0 +1,8 @@
+<launch>
+    <node
+		pkg="assignment3"
+		type="global_planner_reg"
+		name="global_planner"
+		output="screen"
+	/>		
+</launch>

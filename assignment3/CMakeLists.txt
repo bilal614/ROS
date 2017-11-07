@@ -170,5 +170,7 @@ include_directories(
 
 add_executable(steering_3 src/steering.hpp src/steering.cpp src/steering_tf_listener.cpp)
 add_executable(global_planner_reg src/retangle_planner.cpp)
+add_executable(global_planner_trig src/triangle_planner.cpp)
 target_link_libraries(steering_3 ${catkin_LIBRARIES})
 target_link_libraries(global_planner_reg ${catkin_LIBRARIES})
+target_link_libraries(global_planner_trig ${catkin_LIBRARIES})
