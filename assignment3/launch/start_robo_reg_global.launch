@@ -19,10 +19,16 @@
 		output="screen"
 	/>
 	
+	<param name="w" value="9" />
+	<param name="h" value="6" />
+	<param name="wayPointsDis" value="3" />
+	<param name="x" value="3" />
+	<param name="y" value="3" />
+	
 	<node
 		pkg="assignment3"
 		type="global_planner_reg"
 		name="global_planner"
 		launch-prefix="xterm -e"
-	/>		
+	/>
 </launch>

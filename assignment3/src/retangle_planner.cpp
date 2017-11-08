@@ -9,11 +9,12 @@
 //The distance between two way point should be = six as a constant
 
 nav_msgs::Path Construct_Path_Msg(double* x, double *y, int nrOfPoints);
-nav_msgs::Path generateRectangularPath(double w, double h,
-		double weightPointDis, double x, double y);
+nav_msgs::Path generateRectangularPath(double w, double h, double wayPointDis,
+		double x, double y);
 nav_msgs::Path generateRectangularPath(double w, double h, double x, double y);
 void getTriangleInput(double* w, double* h, double* distanceWeightPoints,
 		double* startX, double* startY);
+void GetParam(std::string paramName, double* value);
 int main(int argc, char** argv)
 {
 	ros::init(argc, argv, "global_planner_reg");
@@ -25,19 +26,37 @@ int main(int argc, char** argv)
 	nav_msgs::Path msg;
 	ROS_INFO("RUNNING RECTANGULAR GLOBAL PATH PLANNER");
 
+	double h, w, wayPointsDis, x, y;
+	GetParam("h", &h);
+	GetParam("w", &w);
+	GetParam("wayPointsDis", &wayPointsDis);
+	GetParam("x", &x);
+	GetParam("y", &y);
 	while (ros::ok())
 	{
-		msg = generateRectangularPath(9, 6, 3, 3, 3);
+		//msg = generateRectangularPath(9, 6, 3, 3, 3);
 		//msg = generateRectangularPath(3, 3, 3, 2);
-
-
+		msg = generateRectangularPath(h,w,wayPointsDis,x,y);
 		global_retangle_planner.publish(msg);
 
-		//ros::spinOnce();
-		ros::spin();
+		ros::spinOnce();
+		//ros::spin();
 	}
 
 	return 0;
+}
+
+void GetParam(std::string paramName, double* value)
+{
+	const std::string PARAM_NAME = paramName;
+	bool ok = ros::param::get(PARAM_NAME, *value);
+	if (!ok)
+	{
+		ROS_FATAL_STREAM("Could not get parameter " << PARAM_NAME);
+		exit(1);
+	}
+	ROS_INFO_STREAM(
+			std::setprecision(2) << std::fixed << "\n" <<paramName << ": " << *value);
 }
 
 /**
@@ -73,19 +92,19 @@ nav_msgs::Path Construct_Path_Msg(double* x, double *y, int nrOfPoints)
  * @param w width of the rectangular
  * @param h height of the rectangular
  * @param x,y is the top left conner of the rectangular path, can be considered as a current position
- * @param weightPointDis - distance between 2 weightPoints
+ * @param wayPointDis - distance between 2 weightPoints
  * @return msg the constructed nav_msgs::Path message
  */
-nav_msgs::Path generateRectangularPath(double w, double h,
-		double weightPointDis, double x, double y)
+nav_msgs::Path generateRectangularPath(double w, double h, double wayPointDis,
+		double x, double y)
 {
-	int heightWeightPoints = h / weightPointDis;
+	int heightWeightPoints = h / wayPointDis;
 	//ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "heightWeightPoints: " << heightWeightPoints);
-	int widthWeightPoints = w / weightPointDis + 1;
+	int widthWeightPoints = w / wayPointDis + 1;
 	//ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "widthWeightPoints: " << widthWeightPoints);
 	int countPoints = 1;
-	double remainderWidth = remainder(w, weightPointDis);
-	double remainderHeight = remainder(h, weightPointDis);
+	double remainderWidth = remainder(w, wayPointDis);
+	double remainderHeight = remainder(h, wayPointDis);
 	if (remainderWidth > 0)
 		widthWeightPoints++;
 	if (remainderHeight > 0)
@@ -130,7 +149,7 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 		 std::setprecision(2) << std::fixed << "\ntempDis: " << tempDis
 		 << "\nx_point(count - 1): "
 		 << x_points[countPoints - 1]);*/
-		if (tempDis < weightPointDis)
+		if (tempDis < wayPointDis)
 		{
 			x_points[countPoints] = x_points[countPoints - 1] + tempDis;
 			/*ROS_INFO_STREAM(
@@ -141,7 +160,7 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 		}
 		else
 		{
-			x_points[countPoints] = x_points[countPoints - 1] + weightPointDis;
+			x_points[countPoints] = x_points[countPoints - 1] + wayPointDis;
 		}
 
 		countPoints++;
@@ -154,7 +173,7 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 
 		double tempDis = y_cors[2] - y_points[countPoints - 1];
 
-		if (tempDis < weightPointDis)
+		if (tempDis < wayPointDis)
 		{
 			//In case of the last point and remainder is diferent from weightPoint
 
@@ -163,7 +182,7 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 		}
 		else
 		{
-			y_points[countPoints] = y_points[countPoints - 1] + weightPointDis;
+			y_points[countPoints] = y_points[countPoints - 1] + wayPointDis;
 		}
 		countPoints++;
 	}
@@ -175,7 +194,7 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 		y_points[countPoints] = y_cors[2];
 
 		double tempDis = x_points[countPoints - 1] - x_cors[3];
-		if (tempDis < weightPointDis)
+		if (tempDis < wayPointDis)
 		{
 			//In case of the last point and remainder is diferent from weightPoint
 
@@ -184,7 +203,7 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 		}
 		else
 		{
-			x_points[countPoints] = x_points[countPoints - 1] - weightPointDis;
+			x_points[countPoints] = x_points[countPoints - 1] - wayPointDis;
 		}
 
 		countPoints++;
@@ -196,7 +215,7 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 
 		x_points[countPoints] = x_cors[0];
 		double tempDis = y_points[countPoints - 1] - y_cors[0];
-		if (tempDis < weightPointDis)
+		if (tempDis < wayPointDis)
 		{
 			//In case of the last point and remainder is diferent from weightPoint
 			y_points[countPoints] = y_points[countPoints - 1] - tempDis;
@@ -204,10 +223,10 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 		}
 		else
 		{
-			y_points[countPoints] = y_points[countPoints - 1] - weightPointDis;
+			y_points[countPoints] = y_points[countPoints - 1] - wayPointDis;
 		}
 
-		y_points[countPoints] = y_points[countPoints - 1] - weightPointDis;
+		y_points[countPoints] = y_points[countPoints - 1] - wayPointDis;
 		countPoints++;
 	}
 
@@ -243,24 +262,5 @@ nav_msgs::Path generateRectangularPath(double w, double h, double x, double y)
 	y_cors[4] = y;
 
 	return Construct_Path_Msg(x_cors, y_cors, 5);
-}
-/**
- * getRetangleInput
- *
- */
-void getTriangleInput(double* w, double* h, double* distanceWeightPoints,
-		double* startX, double* startY)
-{
-	ROS_INFO("Width length: ");
-	std::cin >> *w;
-	ROS_INFO("Height length: ");
-	std::cin >> *h;
-	ROS_INFO("Distance of two weight points on the path: ");
-	std::cin >> *distanceWeightPoints;
-	ROS_INFO("X value of starting point:  ");
-	std::cin >> *startX;
-	ROS_INFO("Y value of starting point:  ");
-	std::cin >> *startY;
-
 }
 

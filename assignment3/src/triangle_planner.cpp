@@ -51,8 +51,8 @@ int main(int argc, char** argv)
 
 		global_triangle_planner.publish(msg);
 
-		//ros::spinOnce();
-		ros::spin();
+		ros::spinOnce();
+		//ros::spin();
 	}
 
 	return 0;
