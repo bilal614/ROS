@@ -44,8 +44,8 @@ int main(int argc, char** argv)
 		p3.x = 10;
 		p3.y = 15;
 
-		//msg = generateTrianglePath(p1, p2 , p3);
-		msg = generateTrianglePath(p1, p2, p3, 4);
+		msg = generateTrianglePath(p1, p2 , p3);
+		//msg = generateTrianglePath(p1, p2, p3, 4);
 
 		global_triangle_planner.publish(msg);
 
