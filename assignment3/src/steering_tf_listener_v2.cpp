@@ -92,10 +92,14 @@ int main(int argc, char** argv){
 	
 	tf::TransformListener listener;
 	tf::TransformListener pose_listener;//For current position
-
+	
 	ros::Rate rate(1000.0);
 	while (nh.ok())
+	//while(nh.ok() && rec_msg)
+	/******************************/
 	{
+		ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+			<< "\nHello World");
 		tf::StampedTransform transform;
 		tf::StampedTransform position_transform;
 		try{
@@ -121,8 +125,8 @@ int main(int argc, char** argv){
 			ros::spinOnce();
 		}
 		/********************************************************************/
-		//else
-		//{
+		else
+		{
 			//x and y represent current position of the robot, th represents orientation of the robot	
 			double x = position_transform.getOrigin().x();
 			double y = position_transform.getOrigin().y();
@@ -225,7 +229,7 @@ int main(int argc, char** argv){
 					}
 				}
 			}
-		//}
+		}
 		
 		rate.sleep();
 	}
