@@ -13,11 +13,13 @@ const double lookaheadRadius = sqrt(64.0);
 nav_msgs::Path pathMsg;
 struct point {double x; double y;};
 template<typename T> struct pair{ T p1; T p2; };
-int tri_sqr = 3;
+int tri_sqr;
 std::vector<geometry_msgs::PoseStamped> poses;
 std::vector<point> cart_points;
 bool rec_msg = false;
 geometry_msgs::Twist vel_msg;
+int coordinateCounter = -1;
+const double EPSILON = 0.009;
 
 double getSlope_L(double x1, double x2, double y1, double y2);//returns the slope of a line, constructed from 2 given points
 double getIntercept_L(double x, double y, double slope);//returns the y-intercept value of a line, given a point and slope
@@ -26,7 +28,8 @@ pair<point> solveCircleLineQuad(double x1, double x2, double y1, double y2, poin
 double computeAngleE(point point1, point point2, double currentTheta);
 void PathMessageReceived(const nav_msgs::Path& msg);
 point findCloserPoint(pair<point> pair_of_pts, point inspect);
-int coordinateCounter = -1;
+bool CompareDoubles(double A, double B);
+
 
 int main(int argc, char** argv){
 	ros::init(argc, argv, "local_planner");
@@ -147,7 +150,7 @@ int main(int argc, char** argv){
 			pair<point> Result;	
 			point closesPt;
 			double angleE;
-			vel_msg.linear.x = 0.15;
+			vel_msg.linear.x = 0.1;
 			if(coordinateCounter == -1)
 			{
 				Result = solveCircleLineQuad(robotPoint.x, 
@@ -193,8 +196,7 @@ int main(int argc, char** argv){
 				<< Result.p2.x << ", " << Result.p2.y << ")");	
 				*/
 				closesPt = findCloserPoint(Result, cart_points[coordinateCounter+1]);
-				//closesPt.x += robotPoint.x;
-				//closesPt.y += robotPoint.y;
+				
 				angleE = computeAngleE(closesPt, robotPoint, th); 
 				/*
 				ROS_INFO_STREAM(std::setprecision(2) << std::fixed
@@ -248,42 +250,46 @@ pair<point> solveCircleLineQuad(double x1, double x2, double y1, double y2, poin
 {
 	pair<point> result;
 	
-	if(y1 == y2)//we have a horizontal line
+	//ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+		//<< "\nx1: " << x1 << ", x2: " << x2 << ", y1: " << y1 << ", y2: " << y2);
+	
+	if(CompareDoubles(y1,y2))//we have a horizontal line
 	{
 		result.p1.y = y1;
 		result.p2.y = y2;
-		double d1 = pow(lookaheadRadius, 2) - pow(y1,2); 
+		double k2pos = sqrt((lookaheadRadius*lookaheadRadius) - pow((robPt.y - y1),2));
+		double k2neg = -sqrt((lookaheadRadius*lookaheadRadius) - pow((robPt.y - y1),2));
+		double d1 = pow(lookaheadRadius, 2) - pow(robPt.y-y1,2);//must be within lookahead radius 
 		if(d1 > 0)
 		{
-			//result.p1.x = sqrt(d1);
-			//result.p2.x = -sqrt(d1);
-			result.p1.x = x1;
-			result.p2.x = x2;
-			/*
+			result.p1.x = x1 + k2pos;
+			result.p2.x = x1 + k2neg;
+			
 			ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-					<< "\nResult p1: (" << result.p1.x << ", " << result.p1.y << "), p2: ("
-					<< result.p2.x << ", " << result.p2.y << ")");
-				*/	
+				<< "\nHorizontal:x1: " << x1 << ", x2: " << x2 << ", y1: " << y1 << ", y2: " << y2  
+				<< "\nResult p1: (" << result.p1.x << ", " << result.p1.y << "), p2: ("
+				<< result.p2.x << ", " << result.p2.y << ")");	
 		}
 		return result;
 	}
 	
-	if(x1 == x2)//we have a vertical line
+	if(CompareDoubles(x1,x2))//we have a vertical line
 	{
 		result.p1.x = x1;
 		result.p2.x = x2;
-		double d2 = pow(lookaheadRadius, 2) - pow(x1,2); 
+		double k2pos = sqrt((lookaheadRadius*lookaheadRadius) - pow((robPt.x - x1),2));
+		double k2neg = -sqrt((lookaheadRadius*lookaheadRadius) - pow((robPt.x - x1),2));
+		double d2 = pow(lookaheadRadius, 2) - pow(robPt.x-x1,2);//must be within lookahead radius 
 		if(d2 > 0)
 		{
-			//result.p1.y = sqrt(d2);
-			//result.p2.y = -sqrt(d2);
-			result.p1.y = y1;
-			result.p2.y = y2;
-			/*
+			result.p1.y = k2pos + y1;
+			result.p2.y = k2neg + y1;
+			
 			ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+				<< "\nVertical:x1: " << x1 << ", x2: " << x2 << ", y1: " << y1 << ", y2: " << y2  
 				<< "\nResult p1: (" << result.p1.x << ", " << result.p1.y << "), p2: ("
 				<< result.p2.x << ", " << result.p2.y << ")");
-				*/
+				
 		}
 		return result;
 	}
@@ -338,7 +344,8 @@ void PathMessageReceived(const nav_msgs::Path& msg)
 		/**************Uncomment for Testing with global_planner nodes *********/
 		
 		tri_sqr = nmbrOfWaypoints;
-		
+		ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+				<< "\ntri_sqr: " << tri_sqr);
 		//poses.resize(tri_sqr+1);
 		poses.resize(tri_sqr);
 		//cart_points.resize(tri_sqr+1);
@@ -393,4 +400,10 @@ point findCloserPoint(pair<point> pair_of_pts, point inspect)
 		return pair_of_pts.p1;
 	else
 		return pair_of_pts.p2;
+}
+
+bool CompareDoubles(double A, double B) 
+{
+   double diff = abs(A - B);
+   return (diff < EPSILON);
 }
