@@ -98,8 +98,6 @@ int main(int argc, char** argv){
 	//while(nh.ok() && rec_msg)
 	/******************************/
 	{
-		ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-			<< "\nHello World");
 		tf::StampedTransform transform;
 		tf::StampedTransform position_transform;
 		try{
