@@ -23,7 +23,7 @@ double calculateDistance(point p1, point p2);
 point calculateMidPoint(point p1, point p2);
 bool checkforDistance(std::vector<point> points, double wayPointDis);
 std::vector<point> generatedPoints(point p1, point p2, double wayPointDis);
-
+void GetParam(std::string paramName, double* value);
 int main(int argc, char** argv)
 {
 	ros::init(argc, argv, "global_planner_trig");
@@ -32,30 +32,40 @@ int main(int argc, char** argv)
 
 	ros::Publisher global_triangle_planner = nh.advertise<nav_msgs::Path> (
 			"/plan", 10);
-
+	point p1, p2, p3;
+	GetParam("x1", &p1.x);
+	GetParam("y1", &p1.y);
+	GetParam("x2", &p2.x);
+	GetParam("y2", &p2.y);
+	GetParam("x3", &p3.x);
+	GetParam("y3", &p3.y);
 	while (ros::ok())
 	{
 		nav_msgs::Path msg;
 		ROS_INFO("RUNNING RECTANGULAR GLOBAL PATH PLANNER");
-
-		point p1, p2, p3;
-		p1.x = 5;
-		p1.y = 5;
-		p2.x = 17;
-		p2.y = 5;
-		p3.x = 10;
-		p3.y = 10;
 
 		//msg = generateTrianglePath(p1, p2 , p3);
 		msg = generateTrianglePath(p1, p2, p3, wayPointsDis);
 
 		global_triangle_planner.publish(msg);
 
-		ros::spinOnce();
-		//ros::spin();
+		//ros::spinOnce();
+		ros::spin();
 	}
 
 	return 0;
+}
+void GetParam(std::string paramName, double* value)
+{
+	const std::string PARAM_NAME = paramName;
+	bool ok = ros::param::get(PARAM_NAME, *value);
+	if (!ok)
+	{
+		ROS_FATAL_STREAM("Could not get parameter " << PARAM_NAME);
+		exit(1);
+	}
+	ROS_INFO_STREAM(
+			std::setprecision(2) << std::fixed << "\n" <<paramName << ": " << *value);
 }
 
 /**

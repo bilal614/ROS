@@ -18,7 +18,14 @@
 		type="global_planner_trig"
 		name="global_planner_triangle"
 		launch-prefix="xterm -e"
-	/>	
+	/>
+	
+	<param name="x1" value="5" />	
+	<param name="y1" value="5" />	
+	<param name="x2" value="17" />	
+	<param name="y2" value="5" />	
+	<param name="x3" value="10" />	
+	<param name="y3" value="10" />	
 	
 	<node 
 		pkg="tf" 
