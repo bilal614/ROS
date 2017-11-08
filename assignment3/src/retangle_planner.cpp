@@ -6,6 +6,8 @@
 #include <cmath>
 #include <sstream>
 
+//The distance between two way point should be = six as a constant
+
 nav_msgs::Path Construct_Path_Msg(double* x, double *y, int nrOfPoints);
 nav_msgs::Path generateRectangularPath(double w, double h,
 		double weightPointDis, double x, double y);
@@ -22,32 +24,17 @@ int main(int argc, char** argv)
 			"/plan", 10);
 	nav_msgs::Path msg;
 	ROS_INFO("RUNNING RECTANGULAR GLOBAL PATH PLANNER");
-	double h, w, dis, x, y;
-	bool getInput = false;
-	if (!getInput)
-	{
-		getTriangleInput(&w, &h, &dis, &x, &y);
-		msg = generateRectangularPath(w, h, dis, x, y);
-		getInput = true;
-	}
+
 	while (ros::ok())
 	{
-
-		/*ROS_INFO_STREAM(
-		 std::setprecision(2) << std::fixed
-		 << "Input width: " << w
-		 << "\nInput height: " << h
-		 << "\nInput weight point distance: " << dis
-		 <<"\nInput start_x:  " << x
-		 <<"\nInput start_y: " << y);*/
-		//msg = generateRectangularPath(9, 6, 3, 3, 3);
+		msg = generateRectangularPath(9, 6, 3, 3, 3);
 		//msg = generateRectangularPath(3, 3, 3, 2);
 
 
 		global_retangle_planner.publish(msg);
 
-		ros::spinOnce();
-		//ros::spin();
+		//ros::spinOnce();
+		ros::spin();
 	}
 
 	return 0;

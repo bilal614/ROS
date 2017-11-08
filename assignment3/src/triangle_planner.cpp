@@ -13,15 +13,17 @@ struct point
 	double y;
 };
 
+const double wayPointsDis = 6;
+
 nav_msgs::Path Construct_Path_Msg(double* x, double *y, int nrOfPoints);
 nav_msgs::Path generateTrianglePath(point p1, point p2, point p3);
 nav_msgs::Path generateTrianglePath(point p1, point p2, point p3,
-		double weightPointDis);
+		double wayPointDis);
 double calculateDistance(point p1, point p2);
 point calculateMidPoint(point p1, point p2);
-bool checkforDistance(std::vector<point> points, double weightPointDis);
-std::vector<point> generatedPoints(point p1, point p2, double weightPointDis);
-void getTriangleInput(double *x1, double *y1, double *x2, double *y2, double *x3, double *y3, double* weightPoints);
+bool checkforDistance(std::vector<point> points, double wayPointDis);
+std::vector<point> generatedPoints(point p1, point p2, double wayPointDis);
+
 int main(int argc, char** argv)
 {
 	ros::init(argc, argv, "global_planner_trig");
@@ -39,18 +41,18 @@ int main(int argc, char** argv)
 		point p1, p2, p3;
 		p1.x = 5;
 		p1.y = 5;
-		p2.x = 15;
-		p2.y = 15;
+		p2.x = 17;
+		p2.y = 5;
 		p3.x = 10;
-		p3.y = 15;
+		p3.y = 10;
 
-		msg = generateTrianglePath(p1, p2 , p3);
-		//msg = generateTrianglePath(p1, p2, p3, 4);
+		//msg = generateTrianglePath(p1, p2 , p3);
+		msg = generateTrianglePath(p1, p2, p3, wayPointsDis);
 
 		global_triangle_planner.publish(msg);
 
-		ros::spinOnce();
-		//ros::spin();
+		//ros::spinOnce();
+		ros::spin();
 	}
 
 	return 0;
@@ -86,11 +88,11 @@ nav_msgs::Path Construct_Path_Msg(double* x, double *y, int nrOfPoints)
 /**
  * generateTrianglePath function
  * Used to create a nav_msgs::Path in rectangular shape
- * @param weightPointDis - distance between 2 weight points of the path
+ * @param wayPointDis - distance between 2 weight points of the path
  * @return msg the constructed nav_msgs::Path message
  */
 nav_msgs::Path generateTrianglePath(point p1, point p2, point p3,
-		double weightPointDis)
+		double wayPointDis)
 {
 	//For the first edge (p1,p2)
 	double dis_p12 = calculateDistance(p1, p2);
@@ -105,9 +107,9 @@ nav_msgs::Path generateTrianglePath(point p1, point p2, point p3,
 	ROS_INFO_STREAM(
 			std::setprecision(2) << std::fixed << "dis_p31: " << dis_p31);
 
-	std::vector<point> points_p1_p2 = generatedPoints(p1, p2, weightPointDis);
-	std::vector<point> points_p2_p3 = generatedPoints(p2, p3, weightPointDis);
-	std::vector<point> points_p3_p1 = generatedPoints(p3, p1, weightPointDis);
+	std::vector<point> points_p1_p2 = generatedPoints(p1, p2, wayPointDis);
+	std::vector<point> points_p2_p3 = generatedPoints(p2, p3, wayPointDis);
+	std::vector<point> points_p3_p1 = generatedPoints(p3, p1, wayPointDis);
 	int Points_max = points_p1_p2.size() + points_p2_p3.size()
 			+ points_p3_p1.size() - 2;
 	ROS_INFO_STREAM(
@@ -142,10 +144,10 @@ nav_msgs::Path generateTrianglePath(point p1, point p2, point p3,
 /**
  * generateRectangularPath function
  * Used to create a nav_msgs::Path in rectangular shape
- * @param weightPointDis - distance between 2 weight points of the path
+ * @param wayPointDis - distance between 2 weight points of the path
  * @return msg the constructed nav_msgs::Path message
  */
-std::vector<point> generatedPoints(point p1, point p2, double weightPointDis)
+std::vector<point> generatedPoints(point p1, point p2, double wayPointDis)
 {
 	//Find the vecter of all points
 	std::vector<point> points_between_p1_p2;
@@ -155,13 +157,13 @@ std::vector<point> generatedPoints(point p1, point p2, double weightPointDis)
 			std::setprecision(2) << std::fixed << "points size init: "
 			<< points_between_p1_p2.size());
 	int count = 0;
-	while (!checkforDistance(points_between_p1_p2, weightPointDis)) // means still have distance bigger than weight point distance
+	while (!checkforDistance(points_between_p1_p2, wayPointDis)) // means still have distance bigger than weight point distance
 	{
 		int point_size = points_between_p1_p2.size();
 		for (int i = 1; i < point_size; i++)
 		{
 			if (calculateDistance(points_between_p1_p2[i - 1],
-					points_between_p1_p2[i]) > weightPointDis)
+					points_between_p1_p2[i]) > wayPointDis)
 			{
 				point midPoint = calculateMidPoint(points_between_p1_p2[i - 1],
 						points_between_p1_p2[i]);
@@ -199,15 +201,15 @@ point calculateMidPoint(point p1, point p2)
 }
 /**
  * check for distance function
- * Used to check if all distances between two points is smaller than weightpointDis
+ * Used to check if all distances between two points is smaller than wayPointDis
  * Return true if the does not contain any distance bigger than weight points distance
  */
-bool checkforDistance(std::vector<point> points, double weightPointDis)
+bool checkforDistance(std::vector<point> points, double wayPointDis)
 {
 	bool returnVal = true;
 	for (int i = 1; i < points.size(); i++)
 	{
-		if (calculateDistance(points[i - 1], points[i]) > weightPointDis)
+		if (calculateDistance(points[i - 1], points[i]) > wayPointDis)
 		{
 			returnVal = false;
 			break;
@@ -235,28 +237,5 @@ nav_msgs::Path generateTrianglePath(point p1, point p2, point p3)
 
 	return Construct_Path_Msg(x_cors, y_cors, 3);
 }
-/**
- * getTriangleInput
- *
- */
-void getTriangleInput(double *x1, double *y1, double *x2, double *y2, double *x3, double *y3, double* weightPoints)
-{
-	ROS_INFO("Point1.x: ");
-	std::cin >> *x1;
-	ROS_INFO("Point2.y: ");
-	std::cin >> *y1;
 
-	ROS_INFO("Point2.x: ");
-	std::cin >> *x2;
-	ROS_INFO("Point2.y: ");
-	std::cin >> *y2;
-
-	ROS_INFO("Point3.x: ");
-	std::cin >> *x3;
-	ROS_INFO("Point3.y: ");
-	std::cin >> *y3;
-
-	ROS_INFO("Weight point: ");
-	std::cin >> *weightPoints;
-}
 
