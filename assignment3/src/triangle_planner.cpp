@@ -21,7 +21,7 @@ double calculateDistance(point p1, point p2);
 point calculateMidPoint(point p1, point p2);
 bool checkforDistance(std::vector<point> points, double weightPointDis);
 std::vector<point> generatedPoints(point p1, point p2, double weightPointDis);
-
+void getTriangleInput(double *x1, double *y1, double *x2, double *y2, double *x3, double *y3, double* weightPoints);
 int main(int argc, char** argv)
 {
 	ros::init(argc, argv, "global_planner_trig");
@@ -45,7 +45,7 @@ int main(int argc, char** argv)
 		p3.y = 15;
 
 		//msg = generateTrianglePath(p1, p2 , p3);
-		msg = generateTrianglePath(p1, p2, p3, 2);
+		msg = generateTrianglePath(p1, p2, p3, 4);
 
 		global_triangle_planner.publish(msg);
 
@@ -234,5 +234,29 @@ nav_msgs::Path generateTrianglePath(point p1, point p2, point p3)
 	y_cors[3] = p1.y;
 
 	return Construct_Path_Msg(x_cors, y_cors, 3);
+}
+/**
+ * getTriangleInput
+ *
+ */
+void getTriangleInput(double *x1, double *y1, double *x2, double *y2, double *x3, double *y3, double* weightPoints)
+{
+	ROS_INFO("Point1.x: ");
+	std::cin >> *x1;
+	ROS_INFO("Point2.y: ");
+	std::cin >> *y1;
+
+	ROS_INFO("Point2.x: ");
+	std::cin >> *x2;
+	ROS_INFO("Point2.y: ");
+	std::cin >> *y2;
+
+	ROS_INFO("Point3.x: ");
+	std::cin >> *x3;
+	ROS_INFO("Point3.y: ");
+	std::cin >> *y3;
+
+	ROS_INFO("Weight point: ");
+	std::cin >> *weightPoints;
 }
 
