@@ -346,16 +346,22 @@ void PathMessageReceived(const nav_msgs::Path& msg)
 		{
 			cart_points[i].x = pathMsg.poses[i].pose.position.x;
 			poses[i].pose.position.x = pathMsg.poses[i].pose.position.x;
+			cart_points[i].y = pathMsg.poses[i].pose.position.y;
+			poses[i].pose.position.y = pathMsg.poses[i].pose.position.y;
 			/*
 			if(i == tri_sqr)
 			{
 				cart_points[i].x = pathMsg.poses[0].pose.position.x;
 				poses[i].pose.position.x = pathMsg.poses[0].pose.position.x;
+				cart_points[i].y = pathMsg.poses[0].pose.position.y;
+				poses[i].pose.position.y = pathMsg.poses[0].pose.position.y;
 			}
 			else
 			{
 				cart_points[i].x = pathMsg.poses[i].pose.position.x;
 				poses[i].pose.position.x = pathMsg.poses[i].pose.position.x;
+				cart_points[i].y = pathMsg.poses[i].pose.position.y;
+				poses[i].pose.position.y = pathMsg.poses[i].pose.position.y;
 			}
 			*/
 			ROS_INFO_STREAM(std::setprecision(2) << std::fixed
