@@ -111,7 +111,7 @@ int main(int argc, char** argv){
 		  continue;
 		}
 		/**************Uncomment for Testing with global_planner nodes *********/
-		//nav_msgs::Path Msg = *(ros::topic::waitForMessage<nav_msgs::Path>("/plan", nh));
+		nav_msgs::Path Msg = *(ros::topic::waitForMessage<nav_msgs::Path>("/plan", nh));
 		/*
 		ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 			<< "\nPath Message: " << Msg);
@@ -121,8 +121,8 @@ int main(int argc, char** argv){
 			ros::spinOnce();
 		}
 		/********************************************************************/
-		else
-		{
+		//else
+		//{
 			//x and y represent current position of the robot, th represents orientation of the robot	
 			double x = position_transform.getOrigin().x();
 			double y = position_transform.getOrigin().y();
@@ -225,7 +225,7 @@ int main(int argc, char** argv){
 					}
 				}
 			}
-		}
+		//}
 		
 		rate.sleep();
 	}

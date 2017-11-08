@@ -21,6 +21,29 @@ int main(int argc, char** argv)
 	ros::Publisher global_retangle_planner = nh.advertise<nav_msgs::Path> (
 			"/plan", 10);
 
+	/***************/
+	nav_msgs::Path msg;
+	ROS_INFO("RUNNING RECTANGULAR GLOBAL PATH PLANNER");
+	double h, w, dis, x, y;
+	getTriangleInput(&w, &h, &dis, &x, &y);
+
+	ROS_INFO_STREAM(
+			std::setprecision(2) << std::fixed
+			<< "Input width: " << w
+			<< "\nInput height: " << h
+			<< "\nInput weight point distance: " << dis
+			<<"\nInput start_x:  " << x
+			<<"\nInput start_y: " << y);
+	//msg = generateRectangularPath(22, 12, 5, 5, 5);
+	//msg = generateRectangularPath(3, 3, 3, 2);
+	msg = generateRectangularPath(w, h, dis, x, y);
+
+	global_retangle_planner.publish(msg);
+
+	ros::spin();
+	
+	/***************/
+	/*
 	while (ros::ok())
 	{
 		nav_msgs::Path msg;
@@ -44,6 +67,7 @@ int main(int argc, char** argv)
 		ros::spinOnce();
 		//ros::spin();
 	}
+	*/
 
 	return 0;
 }
