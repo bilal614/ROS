@@ -35,8 +35,8 @@ int main(int argc, char** argv)
 				<< "\nInput weight point distance: " << dis
 				<<"\nInput start_x:  " << x
 				<<"\nInput start_y: " << y);*/
-		//msg = generateRectangularPath(22, 12, 5, 5, 5);
-		msg = generateRectangularPath(3, 3, 3, 2);
+		msg = generateRectangularPath(22, 12, 5, 5, 5);
+		//msg = generateRectangularPath(3, 3, 3, 2);
 		//msg = generateRectangularPath(w, h, dis, x, y);
 
 		global_retangle_planner.publish(msg);
