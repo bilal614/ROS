@@ -172,7 +172,7 @@ int main(int argc, char** argv){
 				
 				//ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 					//<< "\nRho: " << rho);
-				if(rho <= 0.25)
+				if(rho <= 0.20)
 				{
 					ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 					<< "\nCurrent Position: x-position: " << x
@@ -214,7 +214,7 @@ int main(int argc, char** argv){
 					vel_msg.angular.z = 0;
 				}
 				stage_vel.publish(vel_msg);
-				if(rho <= 0.45)
+				if(rho <= 0.35)
 				{
 					ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 					<< "\nCurrent Position: x-position: " << x
@@ -264,11 +264,12 @@ pair<point> solveCircleLineQuad(double x1, double x2, double y1, double y2, poin
 		{
 			result.p1.x = x1 + k2pos;
 			result.p2.x = x1 + k2neg;
-			
+			/*
 			ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 				<< "\nHorizontal:x1: " << x1 << ", x2: " << x2 << ", y1: " << y1 << ", y2: " << y2  
 				<< "\nResult p1: (" << result.p1.x << ", " << result.p1.y << "), p2: ("
 				<< result.p2.x << ", " << result.p2.y << ")");	
+				*/
 		}
 		return result;
 	}
@@ -284,11 +285,12 @@ pair<point> solveCircleLineQuad(double x1, double x2, double y1, double y2, poin
 		{
 			result.p1.y = k2pos + y1;
 			result.p2.y = k2neg + y1;
-			
+			/*
 			ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 				<< "\nVertical:x1: " << x1 << ", x2: " << x2 << ", y1: " << y1 << ", y2: " << y2  
 				<< "\nResult p1: (" << result.p1.x << ", " << result.p1.y << "), p2: ("
 				<< result.p2.x << ", " << result.p2.y << ")");
+				*/
 				
 		}
 		return result;
