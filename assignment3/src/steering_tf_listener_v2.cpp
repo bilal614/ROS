@@ -8,7 +8,7 @@
 #include <exception>
 #include <nav_msgs/Path.h>
 #include <vector>
-
+//Testing version
 const double lookaheadRadius = sqrt(64.0);
 nav_msgs::Path pathMsg;
 struct point {double x; double y;};
