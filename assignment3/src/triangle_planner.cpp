@@ -29,7 +29,7 @@ int main(int argc, char** argv)
 	ros::NodeHandle nh;
 
 	ros::Publisher global_triangle_planner = nh.advertise<nav_msgs::Path> (
-			"/plan", 1);
+			"/plan", 10);
 
 	while (ros::ok())
 	{
@@ -49,8 +49,8 @@ int main(int argc, char** argv)
 
 		global_triangle_planner.publish(msg);
 
-		//ros::spinOnce();
-		ros::spin();
+		ros::spinOnce();
+		//ros::spin();
 	}
 
 	return 0;
