@@ -30,7 +30,7 @@ std::vector<point> cart_points;
 /**Functions**/
 double getSlope_L(double x1, double x2, double y1, double y2);//returns the slope of a line, constructed from 2 given points
 double getIntercept_L(double x, double y, double slope);//returns the y-intercept value of a line, given a point and slope
-pair<point> solveCircleLineQuad(double x1, double x2, double y1, double y2);//Solve for intersection points of the line L defined by 
+pair<point> solveCircleLineQuad(double x1, double x2, double y1, double y2, point robPt);//Solve for intersection points of the line L defined by 
 //2 points and the circle C with radius defined by lookaheadRadius
 double computeAngleE(point point1, point point2, double currentTheta);
 void PathMessageReceived(const nav_msgs::Path& msg);
@@ -59,6 +59,7 @@ int main(int argc, char** argv){
 		////////////////////////////
 		
 		///////////////////////////	
+			/*
 			poses.resize(tri_sqr+2);
 			cart_points.resize(tri_sqr+2);
 			ROS_INFO_STREAM(std::setprecision(2) << std::fixed
@@ -115,7 +116,7 @@ int main(int argc, char** argv){
 				<<", x: " << cart_points[i].x
 				<< ", y: " << cart_points[i].y);		
 			}
-			
+			*/
 			/*******************************/
 	
 	ros::Rate rate(1000.0);
@@ -163,17 +164,19 @@ int main(int argc, char** argv){
 		{
 			Result = solveCircleLineQuad(robotPoint.x, 
 				cart_points[coordinateCounter+1].x, robotPoint.y, 
-				cart_points[coordinateCounter+1].y);
+				cart_points[coordinateCounter+1].y, robotPoint);
 			/*
 			ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 			<< "\ncart_point[0]: x: " << cart_points[coordinateCounter+1].x 
 			<< ", y:" << cart_points[coordinateCounter+1].y);
 			*/
 			////////////////////////////
+			/*
 			Result.p1.x += robotPoint.x;
 			Result.p2.x += robotPoint.x;
 			Result.p1.y += robotPoint.y;
 			Result.p2.y += robotPoint.y;
+			*/
 			////////////////////////////
 			closesPt = findCloserPoint(Result, cart_points[coordinateCounter+1]);
 			angleE = computeAngleE(closesPt, robotPoint, th); 
@@ -202,7 +205,7 @@ int main(int argc, char** argv){
 			if(rho <= 0.15)
 			{
 				coordinateCounter++;
-				
+				/*
 				ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 				<< "\nCurrent Position: x-position: " << x
 				<<", y-position:" << y
@@ -210,7 +213,7 @@ int main(int argc, char** argv){
 				<< ", angleE: " << angleE*180/M_PI
 				<< ", rotation: " << th*180/M_PI
 				<< ", coordinateCounter: " << coordinateCounter);
-				
+				*/
 				
 			}
 		}
@@ -220,13 +223,15 @@ int main(int argc, char** argv){
 			Result = solveCircleLineQuad(cart_points[coordinateCounter].x, 
 				cart_points[coordinateCounter+1].x , 
 				cart_points[coordinateCounter].y , 
-				cart_points[coordinateCounter+1].y);
+				cart_points[coordinateCounter+1].y, robotPoint);
 
 			/////////////////////
+			/*
 			Result.p1.x += robotPoint.x;
 			Result.p2.x += robotPoint.x;
 			Result.p1.y += robotPoint.y;
 			Result.p2.y += robotPoint.y;
+			*/
 			//////////////////////
 			
 			closesPt = findCloserPoint(Result, cart_points[coordinateCounter+1]);
@@ -239,6 +244,7 @@ int main(int argc, char** argv){
 			*/
 			if(coordinateCounter == 2)
 			{
+				/*
 				ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 				<< "\nClosest Point: x: " << closesPt.x
 				<<", y:" << closesPt.y
@@ -246,6 +252,7 @@ int main(int argc, char** argv){
 				<< ", angleE: " << angleE*180/M_PI
 				<< ", points passed: x1 = " << cart_points[coordinateCounter].x << ", x2= " << cart_points[coordinateCounter+1].x
 				<< ", y1 = " << cart_points[coordinateCounter].y << ", y2 = " << cart_points[coordinateCounter+1].y);
+				*/
 			}
 			
 			vel_msg.angular.z = 1.0*angleE;
@@ -296,7 +303,7 @@ double getIntercept_L(double x, double y, double slope)
 	return y - slope*x;
 }
 
-pair<point> solveCircleLineQuad(double x1, double x2, double y1, double y2)
+pair<point> solveCircleLineQuad(double x1, double x2, double y1, double y2, point robPt)
 {
 	//ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 		//<< "\nx1: "<< x1 <<", x2: " << x2 <<", y1: " << y1 << ", y2: " << y2 << ", coordinateCounter: " << coordinateCounter);
@@ -328,11 +335,13 @@ pair<point> solveCircleLineQuad(double x1, double x2, double y1, double y2)
 		return result;
 	}
 	
+	double k = robPt.x;
+	double h = robPt.y;
 	double m = getSlope_L(x1, x2, y1, y2);
 	double B = getIntercept_L(x1, y1, m);
 	double a = 1 + pow(m, 2);
-	double b = 2*B*m;
-	double c = pow(B, 2) - pow(lookaheadRadius, 2);
+	double b = 2*B*m -2*k -2*m*h;
+	double c = h*h + k*k + pow(B, 2) - 2*B*h - pow(lookaheadRadius, 2);
 	
 	if(a<0.0000001)    // ==0
 	{
@@ -388,7 +397,7 @@ void PathMessageReceived(const nav_msgs::Path& msg)
 				<< "\nWayPoints: " << nmbrOfWaypoints);
 		pathMsg = msg;
 		/*************************/
-		/*
+		
 		WayPoints = nmbrOfWaypoints+1;
 		
 		poses.resize(WayPoints);
@@ -410,7 +419,7 @@ void PathMessageReceived(const nav_msgs::Path& msg)
 				<<", x: " << cart_points[i].x
 				<< ", y: " << cart_points[i].y);
 		}
-		*/
+		
 		/**************************/
 		//ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 			//<< "\nPath Message: " << pathMsg);
@@ -423,12 +432,14 @@ point findCloserPoint(pair<point> pair_of_pts, point inspect)
 {
 	double rho1 = pow(pair_of_pts.p1.x - inspect.x,2) + pow(pair_of_pts.p1.y - inspect.y,2);
 	double rho2 = pow(pair_of_pts.p2.x - inspect.x,2) + pow(pair_of_pts.p2.y - inspect.y,2);
+	/*
 	ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 			<< "\nPair of Points: p1: (" << pair_of_pts.p1.x << ", " 
 			<< pair_of_pts.p1.y << "), p2: (" << pair_of_pts.p2.x
 			<< ", " << pair_of_pts.p2.y << "), inpsect_pt: ("
 			<< inspect.x << ", " << inspect.y << ") "
 			<< " ---- rho1: " << rho1 << ", rho2: "  << rho2);
+			*/
 	if(rho1 <= rho2)
 		return pair_of_pts.p1;
 	else
