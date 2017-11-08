@@ -13,7 +13,6 @@ struct point
 	double y;
 };
 
-const double wayPointsDis = 6;
 
 nav_msgs::Path Construct_Path_Msg(double* x, double *y, int nrOfPoints);
 nav_msgs::Path generateTrianglePath(point p1, point p2, point p3);
@@ -32,13 +31,17 @@ int main(int argc, char** argv)
 
 	ros::Publisher global_triangle_planner = nh.advertise<nav_msgs::Path> (
 			"/plan", 10);
+
 	point p1, p2, p3;
+	double wayPointsDis = 0.0;
 	GetParam("x1", &p1.x);
 	GetParam("y1", &p1.y);
 	GetParam("x2", &p2.x);
 	GetParam("y2", &p2.y);
 	GetParam("x3", &p3.x);
 	GetParam("y3", &p3.y);
+	GetParam("wayPointsDis", &wayPointsDis);
+
 	while (ros::ok())
 	{
 		nav_msgs::Path msg;
@@ -49,8 +52,8 @@ int main(int argc, char** argv)
 
 		global_triangle_planner.publish(msg);
 
-		//ros::spinOnce();
-		ros::spin();
+		ros::spinOnce();
+		//ros::spin();
 	}
 
 	return 0;
@@ -163,9 +166,9 @@ std::vector<point> generatedPoints(point p1, point p2, double wayPointDis)
 	std::vector<point> points_between_p1_p2;
 	points_between_p1_p2.push_back(p1);
 	points_between_p1_p2.push_back(p2);
-	ROS_INFO_STREAM(
+	/*ROS_INFO_STREAM(
 			std::setprecision(2) << std::fixed << "points size init: "
-			<< points_between_p1_p2.size());
+			<< points_between_p1_p2.size());*/
 	int count = 0;
 	while (!checkforDistance(points_between_p1_p2, wayPointDis)) // means still have distance bigger than weight point distance
 	{
@@ -178,9 +181,9 @@ std::vector<point> generatedPoints(point p1, point p2, double wayPointDis)
 				point midPoint = calculateMidPoint(points_between_p1_p2[i - 1],
 						points_between_p1_p2[i]);
 
-				ROS_INFO_STREAM(
+				/*ROS_INFO_STREAM(
 						std::setprecision(2) << std::fixed <<"midPoint.x: " << midPoint.x
-						<<", midPoint.y: " << midPoint.y);
+						<<", midPoint.y: " << midPoint.y);*/
 
 				points_between_p1_p2.insert(points_between_p1_p2.begin() + i,
 						midPoint);
