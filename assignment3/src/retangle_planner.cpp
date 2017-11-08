@@ -21,53 +21,29 @@ int main(int argc, char** argv)
 	ros::Publisher global_retangle_planner = nh.advertise<nav_msgs::Path> (
 			"/plan", 10);
 
-	/***************/
-	nav_msgs::Path msg;
-	ROS_INFO("RUNNING RECTANGULAR GLOBAL PATH PLANNER");
-	double h, w, dis, x, y;
-	getTriangleInput(&w, &h, &dis, &x, &y);
-
-	ROS_INFO_STREAM(
-			std::setprecision(2) << std::fixed
-			<< "Input width: " << w
-			<< "\nInput height: " << h
-			<< "\nInput weight point distance: " << dis
-			<<"\nInput start_x:  " << x
-			<<"\nInput start_y: " << y);
-	//msg = generateRectangularPath(22, 12, 5, 5, 5);
-	//msg = generateRectangularPath(3, 3, 3, 2);
-	msg = generateRectangularPath(w, h, dis, x, y);
-
-	global_retangle_planner.publish(msg);
-
-	ros::spin();
-	
-	/***************/
-	/*
-	while (ros::ok())
+		while (ros::ok())
 	{
 		nav_msgs::Path msg;
 		ROS_INFO("RUNNING RECTANGULAR GLOBAL PATH PLANNER");
 		double h, w, dis, x, y;
-		getTriangleInput(&w, &h, &dis, &x, &y);
+		//getTriangleInput(&w, &h, &dis, &x, &y);
 
-		ROS_INFO_STREAM(
+		/*ROS_INFO_STREAM(
 				std::setprecision(2) << std::fixed
 				<< "Input width: " << w
 				<< "\nInput height: " << h
 				<< "\nInput weight point distance: " << dis
 				<<"\nInput start_x:  " << x
-				<<"\nInput start_y: " << y);
+				<<"\nInput start_y: " << y);*/
 		//msg = generateRectangularPath(22, 12, 5, 5, 5);
-		//msg = generateRectangularPath(3, 3, 3, 2);
-		msg = generateRectangularPath(w, h, dis, x, y);
+		msg = generateRectangularPath(3, 3, 3, 2);
+		//msg = generateRectangularPath(w, h, dis, x, y);
 
 		global_retangle_planner.publish(msg);
 
 		ros::spinOnce();
 		//ros::spin();
 	}
-	*/
 
 	return 0;
 }
@@ -111,7 +87,7 @@ nav_msgs::Path Construct_Path_Msg(double* x, double *y, int nrOfPoints)
 nav_msgs::Path generateRectangularPath(double w, double h,
 		double weightPointDis, double x, double y)
 {
-	int heightWeightPoints = h / weightPointDis + 1;
+	int heightWeightPoints = h / weightPointDis;
 	//ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "heightWeightPoints: " << heightWeightPoints);
 	int widthWeightPoints = w / weightPointDis + 1;
 	//ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "widthWeightPoints: " << widthWeightPoints);
@@ -120,6 +96,8 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 	double remainderHeight = remainder(h, weightPointDis);
 	if (remainderWidth > 0)
 		widthWeightPoints++;
+	if (remainderHeight > 0)
+		heightWeightPoints++;
 	/*ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "widthWeightPoints: " << widthWeightPoints
 	 << ", remainderWidth: " << remainderWidth);*/
 	/*if(remainderHeight > 0)
@@ -221,7 +199,7 @@ nav_msgs::Path generateRectangularPath(double w, double h,
 
 	}
 
-	for (int i = 0; i < heightWeightPoints - 1; i++)
+	for (int i = 0; i < heightWeightPoints; i++)
 	{
 
 		x_points[countPoints] = x_cors[0];
