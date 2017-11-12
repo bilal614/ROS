@@ -5,4 +5,10 @@
 		name="global_planner"
 		output="screen"
 	/>		
+    <param name="w" value="22" />
+	<param name="h" value="12" />
+	<param name="wayPointsDis" value="5" />
+	<param name="x" value="5" />
+	<param name="y" value="5" />
+	
 </launch>

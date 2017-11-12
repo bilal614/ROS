@@ -5,6 +5,11 @@
 #include <geometry_msgs/Twist.h>
 #include <cmath>
 #include <sstream>
+struct point
+{
+	double x;
+	double y;
+};
 
 //The distance between two way point should be = six as a constant
 
@@ -36,7 +41,7 @@ int main(int argc, char** argv)
 	{
 		//msg = generateRectangularPath(9, 6, 3, 3, 3);
 		//msg = generateRectangularPath(3, 3, 3, 2);
-		msg = generateRectangularPath(h,w,wayPointsDis,x,y);
+		msg = generateRectangularPath(w, h, wayPointsDis, x, y);
 		global_retangle_planner.publish(msg);
 
 		ros::spinOnce();
@@ -98,145 +103,81 @@ nav_msgs::Path Construct_Path_Msg(double* x, double *y, int nrOfPoints)
 nav_msgs::Path generateRectangularPath(double w, double h, double wayPointDis,
 		double x, double y)
 {
-	int heightWeightPoints = h / wayPointDis;
-	//ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "heightWeightPoints: " << heightWeightPoints);
-	int widthWeightPoints = w / wayPointDis + 1;
-	//ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "widthWeightPoints: " << widthWeightPoints);
-	int countPoints = 1;
-	double remainderWidth = remainder(w, wayPointDis);
-	double remainderHeight = remainder(h, wayPointDis);
-	if (remainderWidth > 0)
-		widthWeightPoints++;
-	if (remainderHeight > 0)
-		heightWeightPoints++;
-	/*ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "widthWeightPoints: " << widthWeightPoints
-	 << ", remainderWidth: " << remainderWidth);*/
-	/*if(remainderHeight > 0)
-	 heightWeightPoints ++;*/ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "heightWeightPoints: " << heightWeightPoints
-			<< ", remainderHeight: " << remainderHeight);
-	int Points_max;
-	Points_max = heightWeightPoints * 2 + widthWeightPoints * 2; // minus the starting point
-	//TODO - Debug this
-	//ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "pointMax: " << Points_max);
-	double x_points[Points_max];
-	double y_points[Points_max];
+	std::vector<point> points;
 
-	//4 standard points
-	double x_cors[4];
-	double y_cors[4];
-	x_cors[0] = x;
-	y_cors[0] = y;
-
-	x_cors[1] = x + w;
-	y_cors[1] = y;
-
-	x_cors[2] = x + w;
-	y_cors[2] = y + h;
-
-	x_cors[3] = x;
-	y_cors[3] = y + h;
-
-	//TODO this one can be improved in such a way that the nr of centers point can be added
-	//init first point,
-	x_points[0] = x;
-	y_points[0] = y;
-
-	for (int i = 1; i < widthWeightPoints; i++)
+	double rightTopPointX = x + w;
+	double tempX = x;
+	point leftTopPoint;
+	leftTopPoint.x = x;
+	leftTopPoint.y = y;
+	points.push_back(leftTopPoint);
+	while (tempX < rightTopPointX)
 	{
-		y_points[countPoints] = y_cors[0];
-		double tempDis = x_cors[1] - x_points[countPoints - 1];
-		/*ROS_INFO_STREAM(
-		 std::setprecision(2) << std::fixed << "\ntempDis: " << tempDis
-		 << "\nx_point(count - 1): "
-		 << x_points[countPoints - 1]);*/
-		if (tempDis < wayPointDis)
-		{
-			x_points[countPoints] = x_points[countPoints - 1] + tempDis;
-			/*ROS_INFO_STREAM(
-			 std::setprecision(2) << std::fixed << "\ncountPoint: "
-			 << countPoints << "\nx_point(count): "
-			 << x_points[countPoints]);*/
-
-		}
+		point p;
+		p.y = y;
+		if (rightTopPointX - tempX >= wayPointDis)
+			p.x = tempX + wayPointDis;
 		else
-		{
-			x_points[countPoints] = x_points[countPoints - 1] + wayPointDis;
-		}
+			p.x = tempX + (rightTopPointX - tempX);
 
-		countPoints++;
+		points.push_back(p);
+		tempX += wayPointDis;
 	}
 
-	for (int i = 0; i < heightWeightPoints; i++)
+	double rightBottomY = y + h;
+	double tempY = y;
+	while (tempY < rightBottomY)
 	{
-
-		x_points[countPoints] = x_cors[1];
-
-		double tempDis = y_cors[2] - y_points[countPoints - 1];
-
-		if (tempDis < wayPointDis)
-		{
-			//In case of the last point and remainder is diferent from weightPoint
-
-			y_points[countPoints] = y_points[countPoints - 1] + tempDis;
-
-		}
+		point p;
+		p.x = rightTopPointX;
+		if (rightBottomY - tempY >= wayPointDis)
+			p.y = tempY + wayPointDis;
 		else
-		{
-			y_points[countPoints] = y_points[countPoints - 1] + wayPointDis;
-		}
-		countPoints++;
+			p.y = tempY + (rightBottomY - tempY);
+
+		points.push_back(p);
+		tempY += wayPointDis;
 	}
-	//x_points[countPoints - 1] = x_cors[2];
-	//y_points[countPoints - 1] = y_cors[2];
 
-	for (int i = 0; i < widthWeightPoints; i++)
+	//temp x coordinates from right to left
+	double tempX_RL = x + w;
+	while (tempX_RL > x)
 	{
-		y_points[countPoints] = y_cors[2];
-
-		double tempDis = x_points[countPoints - 1] - x_cors[3];
-		if (tempDis < wayPointDis)
-		{
-			//In case of the last point and remainder is diferent from weightPoint
-
-			x_points[countPoints] = x_points[countPoints - 1] - tempDis;
-
-		}
+		point p;
+		p.y = rightBottomY;
+		if(tempX_RL - x >= wayPointDis)
+			p.x = tempX_RL - wayPointDis;
 		else
-		{
-			x_points[countPoints] = x_points[countPoints - 1] - wayPointDis;
-		}
-
-		countPoints++;
+			p.x = tempX_RL - (tempX_RL - x);
+		points.push_back(p);
+		tempX_RL -= wayPointDis;
 
 	}
 
-	for (int i = 0; i < heightWeightPoints; i++)
+	//temp  y coordinates from bottom to top
+	double tempY_BT = x + h;
+	while (tempY_BT > y)
 	{
-
-		x_points[countPoints] = x_cors[0];
-		double tempDis = y_points[countPoints - 1] - y_cors[0];
-		if (tempDis < wayPointDis)
-		{
-			//In case of the last point and remainder is diferent from weightPoint
-			y_points[countPoints] = y_points[countPoints - 1] - tempDis;
-
-		}
+		point p;
+		p.y = y;
+		if(tempY_BT - y >= wayPointDis)
+			p.y = tempY_BT - wayPointDis;
 		else
-		{
-			y_points[countPoints] = y_points[countPoints - 1] - wayPointDis;
-		}
-
-		y_points[countPoints] = y_points[countPoints - 1] - wayPointDis;
-		countPoints++;
+			p.y = tempY_BT - (tempY_BT - wayPointDis);
+		points.push_back(p);
+		tempY_BT -= wayPointDis;
 	}
 
-	if (remainderHeight != 0 && remainderWidth != 0)
+	double x_points[points.size()];
+	double y_points[points.size()];
+
+	for(int i = 0; i < points.size(); i++)
 	{
-		x_points[countPoints] = x_cors[0];
-		y_points[countPoints] = y_cors[0];
+		x_points[i] = points[i].x;
+		y_points[i] = points[i].y;
 	}
 
-	return Construct_Path_Msg(x_points, y_points, Points_max);
+	return Construct_Path_Msg(x_points, y_points, points.size());
 }
 
 nav_msgs::Path generateRectangularPath(double w, double h, double x, double y)
