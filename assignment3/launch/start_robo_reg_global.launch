@@ -24,6 +24,7 @@
 	<param name="wayPointsDis" value="3" />
 	<param name="x" value="3" />
 	<param name="y" value="3" />
+	<param name="lookaheadRadius" value="8" />
 	
 	<node
 		pkg="assignment3"
