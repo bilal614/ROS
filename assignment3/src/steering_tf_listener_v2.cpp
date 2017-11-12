@@ -8,8 +8,9 @@
 #include <exception>
 #include <nav_msgs/Path.h>
 #include <vector>
-//Testing version
-const double lookaheadRadius = sqrt(64.0);
+
+//const double lookaheadRadius = sqrt(64.0);
+double lookaheadRadius;
 nav_msgs::Path pathMsg;
 struct point {double x; double y;};
 template<typename T> struct pair{ T p1; T p2; };
@@ -29,13 +30,15 @@ double computeAngleE(point point1, point point2, double currentTheta);
 void PathMessageReceived(const nav_msgs::Path& msg);
 point findCloserPoint(pair<point> pair_of_pts, point inspect);
 bool CompareDoubles(double A, double B);
-
+void GetParam(std::string paramName, double* value);
 
 int main(int argc, char** argv){
 	ros::init(argc, argv, "local_planner");
 
 	ros::NodeHandle nh;
-	
+
+	GetParam("lookaheadRadius", &lookaheadRadius);
+
 	/****************Uncomment for testing with static path**********/
 	/*
 	//geometry_msgs::PoseStamped poses[(tri_sqr+1)];
@@ -409,3 +412,16 @@ bool CompareDoubles(double A, double B)
    double diff = abs(A - B);
    return (diff < EPSILON);
 }
+void GetParam(std::string paramName, double* value)
+{
+	const std::string PARAM_NAME = paramName;
+	bool ok = ros::param::get(PARAM_NAME, *value);
+	if (!ok)
+	{
+		ROS_FATAL_STREAM("Could not get parameter " << PARAM_NAME);
+		exit(1);
+	}
+	ROS_INFO_STREAM(
+			std::setprecision(2) << std::fixed << "\n" <<paramName << ": " << *value);
+}
+
