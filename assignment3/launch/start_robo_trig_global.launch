@@ -27,6 +27,7 @@
 	<param name="x3" value="10" />	
 	<param name="y3" value="10" />	
 	<param name="wayPointsDis" value="6" />
+	
     <param name="lookaheadRadius" value="8" />
 	
 	<node 
