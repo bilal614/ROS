@@ -105,57 +105,58 @@ nav_msgs::Path generateRectangularPath(double w, double h, double wayPointDis,
 {
 	std::vector<point> points;
 
-	double rightTopPointX = x + w;
+	double rightBottomPointX = x + w;
 	double tempX = x;
-	point leftTopPoint;
-	leftTopPoint.x = x;
-	leftTopPoint.y = y;
-	points.push_back(leftTopPoint);
-	while (tempX < rightTopPointX)
+	point leftBottomPoint;
+	leftBottomPoint.x = x;
+	leftBottomPoint.y = y;
+	points.push_back(leftBottomPoint);
+
+	while (tempX < rightBottomPointX)
 	{
 		point p;
 		p.y = y;
-		if (rightTopPointX - tempX >= wayPointDis)
+		if (rightBottomPointX - tempX >= wayPointDis)
 			p.x = tempX + wayPointDis;
 		else
-			p.x = tempX + (rightTopPointX - tempX);
+			p.x = tempX + (rightBottomPointX - tempX);
 
 		points.push_back(p);
 		tempX += wayPointDis;
 	}
 
-	double rightBottomY = y + h;
+	double rightTopY = y + h;
 	double tempY = y;
-	while (tempY < rightBottomY)
+	while (tempY < rightTopY)
 	{
 		point p;
-		p.x = rightTopPointX;
-		if (rightBottomY - tempY >= wayPointDis)
+		p.x = rightBottomPointX;
+		if (rightTopY - tempY >= wayPointDis)
 			p.y = tempY + wayPointDis;
 		else
-			p.y = tempY + (rightBottomY - tempY);
+			p.y = tempY + (rightTopY - tempY);
 
 		points.push_back(p);
 		tempY += wayPointDis;
 	}
 
-	//temp x coordinates from right to left
-	double tempX_RL = x + w;
-	while (tempX_RL > x)
+	//temp x coordinates from left to right
+	double tempX_LR = x + w;
+	while (tempX_LR > x)
 	{
 		point p;
-		p.y = rightBottomY;
-		if(tempX_RL - x >= wayPointDis)
-			p.x = tempX_RL - wayPointDis;
+		p.y = rightTopY;
+		if(tempX_LR - x >= wayPointDis)
+			p.x = tempX_LR - wayPointDis;
 		else
-			p.x = tempX_RL - (tempX_RL - x);
+			p.x = tempX_LR - (tempX_LR - x);
 		points.push_back(p);
-		tempX_RL -= wayPointDis;
+		tempX_LR -= wayPointDis;
 
 	}
 
-	//temp  y coordinates from bottom to top
-	double tempY_BT = x + h;
+	//temp  y coordinates from top to bottom
+	double tempY_BT = y + h;
 	while (tempY_BT > y)
 	{
 		point p;

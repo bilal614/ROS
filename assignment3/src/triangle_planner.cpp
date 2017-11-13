@@ -154,12 +154,7 @@ nav_msgs::Path generateTrianglePath(point p1, point p2, point p3,
 
 	return Construct_Path_Msg(x_points, y_points, Points_max);
 }
-/**
- * generateRectangularPath function
- * Used to create a nav_msgs::Path in rectangular shape
- * @param wayPointDis - distance between 2 weight points of the path
- * @return msg the constructed nav_msgs::Path message
- */
+
 std::vector<point> generatedPoints(point p1, point p2, double wayPointDis)
 {
 	//Find the vecter of all points
