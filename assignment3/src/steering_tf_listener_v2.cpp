@@ -336,7 +336,16 @@ pair<point> solveCircleLineQuad(double x1, double x2, double y1, double y2, poin
 
 double computeAngleE(point point1, point robot_point, double currentTheta)
 {
-	return (atan2((point1.y - robot_point.y), (point1.x - robot_point.x)) - currentTheta);
+	double angle = (atan2((point1.y - robot_point.y), (point1.x - robot_point.x)) - currentTheta);
+	if(angle > M_PI)
+	{
+		angle -= 2*M_PI;
+	}
+	else if( angle < (-1*M_PI))
+	{
+		angle += 2*M_PI;
+	} 
+	return angle;
 }
 void PathMessageReceived(const nav_msgs::Path& msg)
 {
