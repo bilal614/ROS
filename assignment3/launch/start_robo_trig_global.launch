@@ -3,7 +3,7 @@
 		pkg="stage_ros"
 		type="stageros"
 		name="emptyStage"
-		args="$(find assignment2)/world/empty.world" 
+		args="$(find assignment3)/world/empty.world" 
 	/>
     
     <node
