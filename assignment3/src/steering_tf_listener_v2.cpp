@@ -20,7 +20,7 @@ std::vector<point> cart_points;
 bool rec_msg = false;
 geometry_msgs::Twist vel_msg;
 int coordinateCounter = -1;
-const double EPSILON = 0.009;
+const double EPSILON = 0.0001;
 
 double getSlope_L(double x1, double x2, double y1, double y2);//returns the slope of a line, constructed from 2 given points
 double getIntercept_L(double x, double y, double slope);//returns the y-intercept value of a line, given a point and slope
@@ -164,7 +164,7 @@ int main(int argc, char** argv){
 				angleE = computeAngleE(closesPt, robotPoint, th); 
 				rho =  sqrt(pow((robotPoint.x-cart_points[coordinateCounter+1].x), 2) + 
 				pow((robotPoint.y-cart_points[coordinateCounter+1].y), 2));
-				vel_msg.angular.z = 2.5*angleE;
+				vel_msg.angular.z = 3.5*angleE;
 				vel_msg.linear.x += (rho*0.5/lookaheadRadius);
 				//if(abs(th-angleE) < 0.005)
 				if(th == angleE)
@@ -175,7 +175,7 @@ int main(int argc, char** argv){
 				
 				//ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 					//<< "\nRho: " << rho);
-				if(rho <= 0.20)
+				if(rho <= 0.30)
 				{
 					coordinateCounter++;
 					ROS_INFO_STREAM(std::setprecision(2) << std::fixed
@@ -209,7 +209,7 @@ int main(int argc, char** argv){
 				*/
 				rho =  sqrt(pow((robotPoint.x-cart_points[coordinateCounter+1].x), 2) + 
 				pow((robotPoint.y-cart_points[coordinateCounter+1].y), 2));
-				vel_msg.angular.z = 2.5*angleE;
+				vel_msg.angular.z = 3.5*angleE;
 				vel_msg.linear.x += (rho*0.5/lookaheadRadius);
 				
 				if(th == angleE)
@@ -217,7 +217,7 @@ int main(int argc, char** argv){
 					vel_msg.angular.z = 0;
 				}
 				stage_vel.publish(vel_msg);
-				if(rho <= 0.35)
+				if(rho <= 0.65)
 				{
 					coordinateCounter++;
 					ROS_INFO_STREAM(std::setprecision(2) << std::fixed
@@ -267,12 +267,12 @@ pair<point> solveCircleLineQuad(double x1, double x2, double y1, double y2, poin
 		{
 			result.p1.x = x1 + k2pos;
 			result.p2.x = x1 + k2neg;
-			/*
+			
 			ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 				<< "\nHorizontal:x1: " << x1 << ", x2: " << x2 << ", y1: " << y1 << ", y2: " << y2  
 				<< "\nResult p1: (" << result.p1.x << ", " << result.p1.y << "), p2: ("
 				<< result.p2.x << ", " << result.p2.y << ")");	
-				*/
+				
 		}
 		return result;
 	}
@@ -288,12 +288,12 @@ pair<point> solveCircleLineQuad(double x1, double x2, double y1, double y2, poin
 		{
 			result.p1.y = k2pos + y1;
 			result.p2.y = k2neg + y1;
-			/*
+			
 			ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 				<< "\nVertical:x1: " << x1 << ", x2: " << x2 << ", y1: " << y1 << ", y2: " << y2  
 				<< "\nResult p1: (" << result.p1.x << ", " << result.p1.y << "), p2: ("
 				<< result.p2.x << ", " << result.p2.y << ")");
-				*/
+				
 				
 		}
 		return result;
@@ -337,6 +337,7 @@ pair<point> solveCircleLineQuad(double x1, double x2, double y1, double y2, poin
 double computeAngleE(point point1, point robot_point, double currentTheta)
 {
 	double angle = (atan2((point1.y - robot_point.y), (point1.x - robot_point.x)) - currentTheta);
+	
 	if(angle > M_PI)
 	{
 		angle -= 2*M_PI;
@@ -345,6 +346,7 @@ double computeAngleE(point point1, point robot_point, double currentTheta)
 	{
 		angle += 2*M_PI;
 	} 
+	
 	return angle;
 }
 void PathMessageReceived(const nav_msgs::Path& msg)
@@ -418,7 +420,9 @@ point findCloserPoint(pair<point> pair_of_pts, point inspect)
 
 bool CompareDoubles(double A, double B) 
 {
-   double diff = abs(A - B);
+   double diff = std::abs(A - B);//be sure to use abs provided by std, 
+   //These convenience abs overloads are exclusive of C++. In C, abs is only 
+   //declared in <stdlib.h> (and operates on int values).
    return (diff < EPSILON);
 }
 void GetParam(std::string paramName, double* value)

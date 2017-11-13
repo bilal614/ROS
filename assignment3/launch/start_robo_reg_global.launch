@@ -28,6 +28,7 @@
 		<param name="lookaheadRadius" value="8" />
 	-->
 	
+<<<<<<< HEAD
 	<!-- Params for top-right, small look ahead radius-->
 		<param name="w" value="9" />
 		<param name="h" value="6" />
@@ -38,15 +39,18 @@
 	
 	
 	<!-- Params for top-left
+=======
+	<!-- Params for top-left 
+>>>>>>> origin/master
 		<param name="w" value=" 9" />
 		<param name="h" value="6" />
 		<param name="wayPointsDis" value="3" />
 		<param name="x" value="-9" />
 		<param name="y" value="3" />
 		<param name="lookaheadRadius" value="8" />
-	-->
 	
-	<!-- Params for bottom-left
+	-->
+	<!-- Params for bottom-left 
 		<param name="w" value=" 9" />
 		<param name="h" value="6" />
 		<param name="wayPointsDis" value="3" />
@@ -55,15 +59,19 @@
 		<param name="lookaheadRadius" value="8" />
 	-->
 	
+<<<<<<< HEAD
 	
 	<!-- Params for bottom-right
+=======
+	<!-- Params for bottom-right -->
+>>>>>>> origin/master
 		<param name="w" value=" 9" />
 		<param name="h" value="6" />
 		<param name="wayPointsDis" value="3" />
 		<param name="x" value="3" />
 		<param name="y" value="-12" />
 		<param name="lookaheadRadius" value="8" />
-	-->
+	
 	
 	<node
 		pkg="assignment3"

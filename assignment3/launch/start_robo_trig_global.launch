@@ -63,10 +63,10 @@
 	<!-- Second and third quadrands
 		<param name="x1" value="-5" />	
 		<param name="y1" value="-5" />	
-		<param name="x2" value="-17" />	
-		<param name="y2" value="5" />	
-		<param name="x3" value="-10" />	
-		<param name="y3" value="10" />	
+		<param name="x2" value="11" />	
+		<param name="y2" value="-11" />
+		<param name="x3" value="17" />	
+		<param name="y3" value="-7" />	
 		<param name="wayPointsDis" value="5" />
 	-->
 	
