@@ -177,13 +177,13 @@ int main(int argc, char** argv){
 					//<< "\nRho: " << rho);
 				if(rho <= 0.20)
 				{
+					coordinateCounter++;
 					ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 					<< "\nCurrent Position: x-position: " << x
 					<<", y-position:" << y
 					<< ", rotation: " << th
 					<< ", angleE: " << angleE*180/M_PI
 					<< ", rotation: " << th*180/M_PI);
-					coordinateCounter++;
 				}
 			}
 			else
@@ -219,14 +219,14 @@ int main(int argc, char** argv){
 				stage_vel.publish(vel_msg);
 				if(rho <= 0.35)
 				{
+					coordinateCounter++;
 					ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 					<< "\nCurrent Position: x-position: " << x
 					<<", y-position:" << y
 					<< ", rotation: " << th
 					<< ", angleE: " << angleE
 					<< ", coordinateCounter: " << coordinateCounter);
-					coordinateCounter++;
-					if(coordinateCounter >= tri_sqr)
+					if(coordinateCounter > tri_sqr)
 					{
 						return 0;
 					}
