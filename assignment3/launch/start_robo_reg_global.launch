@@ -19,16 +19,16 @@
 		output="screen"
 	/>
 	
-	<!-- Params for top-right -->
+	<!-- Params for top-right 
 		<param name="w" value="9" />
 		<param name="h" value="6" />
 		<param name="wayPointsDis" value="3" />
 		<param name="x" value="3" />
 		<param name="y" value="3" />
 		<param name="lookaheadRadius" value="8" />
+	-->
 	
-	
-	<!-- Params for top-right, small look ahead radius
+	<!-- Params for top-right, small look ahead radius 
 		<param name="w" value="9" />
 		<param name="h" value="6" />
 		<param name="wayPointsDis" value="3" />
@@ -37,7 +37,7 @@
 		<param name="lookaheadRadius" value="4" />
 	-->
 	
-	<!-- Params for top-left
+	<!-- Params for top-left -->
 		<param name="w" value=" 9" />
 		<param name="h" value="6" />
 		<param name="wayPointsDis" value="3" />
@@ -45,15 +45,15 @@
 		<param name="y" value="3" />
 		<param name="lookaheadRadius" value="8" />
 	
-	-->
-	<!-- Params for bottom-left 
+	
+	<!-- Params for bottom-left -->
 		<param name="w" value=" 9" />
 		<param name="h" value="6" />
 		<param name="wayPointsDis" value="3" />
 		<param name="x" value="-9" />
 		<param name="y" value="-12" />
 		<param name="lookaheadRadius" value="8" />
-	-->
+	
 	
 	
 	<!-- Params for bottom-right 
@@ -65,6 +65,16 @@
 		<param name="y" value="-12" />
 		<param name="lookaheadRadius" value="8" />
 	-->
+	
+	<!-- Params for all 4 quadrants -->
+
+		<param name="w" value=" 19" />
+		<param name="h" value="16" />
+		<param name="wayPointsDis" value="3" />
+		<param name="x" value="-4" />
+		<param name="y" value="-6" />
+		<param name="lookaheadRadius" value="8" />
+		
 	
 	<node
 		pkg="assignment3"

@@ -148,7 +148,7 @@ int main(int argc, char** argv){
 					vel_msg.angular.z = 0;
 				}
 				stage_vel.publish(vel_msg);
-				if(rho <= 0.65)
+				if(rho <= 0.45)
 				{
 					coordinateCounter++;
 					/*
