@@ -2,7 +2,6 @@
 #include <tf/transform_listener.h>
 #include <geometry_msgs/Twist.h>
 #include <turtlesim/Spawn.h>
-#include "steering.hpp"
 #include <math.h>
 #include <iostream>
 #include <exception>
