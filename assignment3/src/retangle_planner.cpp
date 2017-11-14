@@ -164,7 +164,7 @@ nav_msgs::Path generateRectangularPath(double w, double h, double wayPointDis,
 		if(tempY_BT - y >= wayPointDis)
 			p.y = tempY_BT - wayPointDis;
 		else
-			p.y = tempY_BT - (tempY_BT - wayPointDis);
+			p.y = tempY_BT - (tempY_BT - y);
 		points.push_back(p);
 		tempY_BT -= wayPointDis;
 	}
