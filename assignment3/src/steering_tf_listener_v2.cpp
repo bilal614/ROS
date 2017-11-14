@@ -105,7 +105,7 @@ int main(int argc, char** argv){
 				rho =  sqrt(pow((robotPoint.x-cart_points[coordinateCounter+1].x), 2) + 
 				pow((robotPoint.y-cart_points[coordinateCounter+1].y), 2));
 				vel_msg.angular.z = 3.5*angleE;
-				vel_msg.linear.x += (rho*0.5/lookaheadRadius);
+				vel_msg.linear.x += (rho*0.65/lookaheadRadius);
 				//if(abs(th-angleE) < 0.005)
 				if(th == angleE)
 				{
@@ -141,7 +141,7 @@ int main(int argc, char** argv){
 				rho =  sqrt(pow((robotPoint.x-cart_points[coordinateCounter+1].x), 2) + 
 				pow((robotPoint.y-cart_points[coordinateCounter+1].y), 2));
 				vel_msg.angular.z = 3.5*angleE;
-				vel_msg.linear.x += (rho*0.5/lookaheadRadius);
+				vel_msg.linear.x += (rho*0.65/lookaheadRadius);
 				
 				if(th == angleE)
 				{
