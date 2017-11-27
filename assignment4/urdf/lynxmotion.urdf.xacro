@@ -4,57 +4,104 @@
 	<material name="blue">
 		<color rgba="0 0 0.8 1"/>
 	</material>
-	<link name="base_block">
-		<visual>
-			<geometry>
-				<cylinder length="0.2" radius="0.3"/>
-			</geometry>
-			<origin rpy="0 0 0" xyz="0 0 0.3"/>
-		</visual>
-	</link>
+	<material name="green">
+		<color rgba="0 0.5 0 1"/>
+	</material>
 	
 	<link name="base_link">
 		<visual>
 			<geometry>
+				<cylinder length="0.2" radius="0.3"/>
+			</geometry>
+			<material name="green"/>
+		</visual>
+	</link>
+	
+	<link name="base_rotate">
+		<visual>
+			<geometry>
 				<cylinder length="0.2" radius="0.1"/>
 			</geometry>
-			<origin rpy="0 0 0" xyz="0 0 0.3"/>
+			<origin rpy="0 0 0" xyz="0 0 0.1"/>
 		</visual>
 	</link>
 	
 	<link name="bottom_arm">
 		<visual>
 			<geometry>
-				<box size="0.4 0.1 0.2"/>
+				<box size="0.4 0.2 0.05"/>
 			</geometry>
 			<material name="blue"/>
-			<origin rpy="0 1.57075 0" xyz="0 0 0.15"/>
+			<origin rpy="0 1.57075 0" xyz="0 0 0.2"/>
 		</visual>
 	</link>
 	
 	<link name="top_arm">
 		<visual>
 			<geometry>
-				<box size="0.4 0.1 0.2"/>
+				<box size="0.4 0.2 0.05"/>
 			</geometry>
-			<origin rpy="0 1.57075 0" xyz="0 0 0.3"/>
+			<origin rpy="0 1.57075 0" xyz="0 0 0.2"/>
 		</visual>
 	</link>
+	
+	<link name="wrist">
+		<visual>
+			<geometry>
+				<box size="0.2 0.1 0.05"/>
+			</geometry>
+			<origin rpy="0 -1.57075 0" xyz="0 0 0.1"/>
+		</visual>
+	</link>
+	
+	<link name="right_gripper">
+		<visual>
+			<origin rpy="-1.57075 1.57075 0" xyz="0 0 0"/>
+			<geometry>
+				<mesh filename="package://urdf_tutorial/meshes/l_finger.dae"/>
+			</geometry>
+		</visual>
+	</link>
+	
+	<link name="left_gripper">
+		<visual>
+			<origin rpy="1.57075 -1.57075 3.1415" xyz="0 0 0"/>
+			<geometry>
+				<mesh filename="package://urdf_tutorial/meshes/l_finger.dae"/>
+			</geometry>
+		</visual>
+	</link>
+	
+	<joint name="left_gripper_joint" type="revolute">
+		<axis xyz="0 1 0"/>
+		<limit effort="1000.0" lower="-1.57075" upper="0" velocity="0.5"/>
+		<origin rpy="0 0 0" xyz="0 0 0.2"/>
+		<parent link="wrist"/>
+		<child link="left_gripper"/>
+	</joint>
+	
+	<joint name="right_gripper_joint" type="revolute">
+		<axis xyz="0 0 -1"/>
+		<limit effort="1000.0" lower="0.0" upper="0.548" velocity="0.5"/>
+		<origin rpy="0 0 0" xyz="0 0 0.2"/>
+		<parent link="wrist"/>
+		<child link="right_gripper"/>
+	</joint>
 	
 	<joint name="base_block_to_base_link" type="revolute">
 		<axis xyz="0 0 1"/>
 		<limit effort="1000.0" lower="-1.548" upper="1.548" velocity="0.5"/>
-		<origin xyz="0 0 0.4"/>
-		<parent link="base_block"/>
-		<child link="base_link"/>
+		<origin xyz="0 0 0.1"/>
+		<parent link="base_link"/>
+		<child link="base_rotate"/>
 	</joint>
 	
 	
 	<joint name="base_to_bottom_arm" type="revolute">
 		<axis xyz="0 1 0"/>
 		<limit effort="1000.0" lower="-1.548" upper="1.548" velocity="0.5"/>
-		<origin xyz="0 0 0.5"/>
-		<parent link="base_link"/>
+		<origin xyz="0 0 0.2"/>
+		<parent link="base_rotate"/>
 		<child link="bottom_arm"/>
 	</joint>
 	
@@ -63,9 +110,17 @@
 	<joint name="bottom_to_top_arm" type="revolute">
 		<axis xyz="0 1 0"/>
 		<limit effort="1000.0" lower="-1.548" upper="1.548" velocity="0.5"/>
-		<origin xyz="0 0 0.3"/>
+		<origin xyz="0 0 0.4"/>
 		<parent link="bottom_arm"/>
 		<child link="top_arm"/>
+	</joint>
+	
+	<joint name="wrist_rotate" type="revolute">
+		<axis xyz="0 0 1"/>
+		<limit effort="1000.0" lower="-1.548" upper="1.548" velocity="0.5"/>
+		<origin xyz="0 0 0.4"/>
+		<parent link="top_arm"/>
+		<child link="wrist"/>
 	</joint>
 	
 </robot>
