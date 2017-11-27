@@ -7,12 +7,20 @@
   <material name="blue">
     <color rgba="0 0 0.8 1"/>
   </material>
+  <link name="base_block">
+    <visual>
+      <geometry>
+        <cylinder length="0.2" radius="0.3"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0.3"/>
+    </visual>
+  </link>
   <link name="base_link">
     <visual>
       <geometry>
-        <cylinder length="0.4" radius="0.3"/>
+        <cylinder length="0.2" radius="0.1"/>
       </geometry>
-      <origin rpy="0 0 0" xyz="0 0 0.2"/>
+      <origin rpy="0 0 0" xyz="0 0 0.3"/>
     </visual>
   </link>
   <link name="bottom_arm">
@@ -32,10 +40,17 @@
       <origin rpy="0 1.57075 0" xyz="0 0 0.3"/>
     </visual>
   </link>
-  <joint name="base_to_bottom_arm" type="revolute">
+  <joint name="base_block_to_base_link" type="revolute">
     <axis xyz="0 0 1"/>
     <limit effort="1000.0" lower="-1.548" upper="1.548" velocity="0.5"/>
     <origin xyz="0 0 0.4"/>
+    <parent link="base_block"/>
+    <child link="base_link"/>
+  </joint>
+  <joint name="base_to_bottom_arm" type="revolute">
+    <axis xyz="0 1 0"/>
+    <limit effort="1000.0" lower="-1.548" upper="1.548" velocity="0.5"/>
+    <origin xyz="0 0 0.5"/>
     <parent link="base_link"/>
     <child link="bottom_arm"/>
   </joint>
