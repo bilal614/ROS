@@ -1,10 +1,16 @@
 <?xml version="1.0"?>
 	<robot name="lynxmotion">
+		
+		<material name="blue">
+			<color rgba="0 0 0.8 1"/>
+		</material>
+		
 		<link name="base_link">
 		<visual>
 			<geometry>
 				<cylinder length="0.4" radius="0.3"/>
 			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 -0.25"/>
 		</visual>
 	</link>
 	
@@ -13,6 +19,7 @@
 			<geometry>
 				<box size="0.4 0.1 0.2"/>
 			</geometry>
+			<material name="blue"/>
 			<origin rpy="0 1.57075 0" xyz="0 0 -0.25"/>
 		</visual>
 	</link>
@@ -33,6 +40,8 @@
 		<parent link="base_link"/>
 		<child link="bottom_arm"/>
 	</joint>
+	
+	
 	
 	<joint name="bottom_to_top_arm" type="revolute">
 		<axis xyz="0 1 0"/>

@@ -1,0 +1,8 @@
+To run the lynxmotion in RVIZ in its current state without a launch file use the following commands:
+
+Run the following command when in the src/assignment4/urdf directory to generate a usbale urdf file after executing the appropriate macros in the file provided
+*rosrun xacro xacro lynxmotion.urdf.xacro > lynxmotion.urdf
+
+Since we have not made a launch file for ourselves yet we can use the urdf_tutorial launch file to start the provided urdf model in RVIZ
+*roslaunch urdf_tutorial display.launch model:=/home/viki/catkin_ws/src/assignment4/urdf/lynxmotion.urdf
+
