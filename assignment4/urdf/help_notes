@@ -10,3 +10,5 @@ Since we have not made a launch file for ourselves yet we can use the urdf_tutor
 roslaunch assignment4 assignment4.launch model:='$(find assignment4)/urdf/lynxmotion.urdf'
 //Run with assignment4 xacro file
 roslaunch assignment4 assignment4.launch model:='$(find assignment4)/urdf/lynxmotion.urdf.xacro'
+//Version 2 - Working on combine left and right gripper
+roslaunch assignment4 assignment4.launch model:='$(find assignment4)/urdf/lynxmotion.02.urdf.xacro'
