@@ -6,5 +6,7 @@ Run the following command when in the src/assignment4/urdf directory to generate
 Since we have not made a launch file for ourselves yet we can use the urdf_tutorial launch file to start the provided urdf model in RVIZ by executing the following command
 *roslaunch urdf_tutorial display.launch model:=/home/viki/catkin_ws/src/assignment4/urdf/lynxmotion.urdf
 
-//Run with assignment4 lauch file
+//Run with assignment4 launch file
 roslaunch assignment4 assignment4.launch model:='$(find assignment4)/urdf/lynxmotion.urdf'
+//Run with assignment4 xacro file
+roslaunch assignment4 assignment4.launch model:='$(find assignment4)/urdf/lynxmotion.urdf.xacro'
