@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
-	<robot name="lynxmotion" xmlns:xacro="http://ros.org/wiki/xacro">
-	
-	<xacro:property name="velocity" value="0.5"/>
+	<robot name="lynxmotion">
 		
 	<material name="blue">
 		<color rgba="0 0 0.8 1"/>
@@ -76,7 +74,7 @@
 	
 	<joint name="left_gripper_joint" type="revolute">
 		<axis xyz="0 1 0"/>
-		<limit effort="1000.0" lower="-1.57075" upper="0" velocity="${velocity}"/>
+		<limit effort="1000.0" lower="-1.57075" upper="0" velocity="0.5"/>
 		<origin rpy="0 0 0" xyz="0 0 0.2"/>
 		<parent link="wrist"/>
 		<child link="left_gripper"/>
@@ -84,7 +82,7 @@
 	
 	<joint name="right_gripper_joint" type="revolute">
 		<axis xyz="0 0 -1"/>
-		<limit effort="1000.0" lower="0.0" upper="0.548" velocity="${velocity}"/>
+		<limit effort="1000.0" lower="0.0" upper="0.548" velocity="0.5"/>
 		<origin rpy="0 0 0" xyz="0 0 0.2"/>
 		<parent link="wrist"/>
 		<child link="right_gripper"/>
@@ -92,7 +90,7 @@
 	
 	<joint name="base_block_to_base_link" type="revolute">
 		<axis xyz="0 0 1"/>
-		<limit effort="1000.0" lower="-1.548" upper="1.548" velocity="${velocity}"/>
+		<limit effort="1000.0" lower="-1.548" upper="1.548" velocity="0.5"/>
 		<origin xyz="0 0 0.1"/>
 		<parent link="base_link"/>
 		<child link="base_rotate"/>
@@ -101,7 +99,7 @@
 	
 	<joint name="base_to_bottom_arm" type="revolute">
 		<axis xyz="0 1 0"/>
-		<limit effort="1000.0" lower="-1.548" upper="1.548" velocity="${velocity}"/>
+		<limit effort="1000.0" lower="-1.548" upper="1.548" velocity="0.5"/>
 		<origin xyz="0 0 0.2"/>
 		<parent link="base_rotate"/>
 		<child link="bottom_arm"/>
@@ -111,7 +109,7 @@
 	
 	<joint name="bottom_to_top_arm" type="revolute">
 		<axis xyz="0 1 0"/>
-		<limit effort="1000.0" lower="-1.548" upper="1.548" velocity="${velocity}"/>
+		<limit effort="1000.0" lower="-1.548" upper="1.548" velocity="0.5"/>
 		<origin xyz="0 0 0.4"/>
 		<parent link="bottom_arm"/>
 		<child link="top_arm"/>
@@ -119,7 +117,7 @@
 	
 	<joint name="wrist_rotate" type="revolute">
 		<axis xyz="0 0 1"/>
-		<limit effort="1000.0" lower="-1.548" upper="1.548" velocity="${velocity}"/>
+		<limit effort="1000.0" lower="-1.548" upper="1.548" velocity="0.5"/>
 		<origin xyz="0 0 0.4"/>
 		<parent link="top_arm"/>
 		<child link="wrist"/>
