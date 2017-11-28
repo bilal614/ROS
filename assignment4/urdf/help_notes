@@ -11,4 +11,4 @@ roslaunch assignment4 assignment4.launch model:='$(find assignment4)/urdf/lynxmo
 //Run with assignment4 xacro file
 roslaunch assignment4 assignment4.launch model:='$(find assignment4)/urdf/lynxmotion.urdf.xacro'
 //Version 2 - Working on combine left and right gripper
-roslaunch assignment4 assignment4.launch model:='$(find assignment4)/urdf/lynxmotion.02.urdf.xacro'
+roslaunch assignment4 assignment4.launch model:='$(find assignment4)/urdf/lynxmotion.v02.urdf.xacro'

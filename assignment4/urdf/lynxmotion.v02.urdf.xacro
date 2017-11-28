@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 	<robot name="lynxmotion" xmlns:xacro="http://ros.org/wiki/xacro">
 	
-	<xacro:property name="velocity" value="/0.5"/>
+	<xacro:property name="velocity" value="0.5"/>
 		<!--Should have better name for it-->
 	<xacro:property name="Len" value="1.57075"/>
 		
@@ -61,7 +61,7 @@
 	<xacro:macro name = "gripper" params="prefix reflect y">
 		<link name="${prefix}_gripper">
 			<visual>
-				<origin rpy="-${reflect * Len} ${reflect*Len} 0" xyz="0 0 0"/>
+				<origin rpy="-${reflect*Len} ${reflect*Len} 0" xyz="0 0 0"/>
 				<geometry>
 					<mesh filename="package://urdf_tutorial/meshes/l_finger.dae"/>
 				</geometry>
@@ -73,9 +73,8 @@
 			<limit effort="1000.0" lower="-1.57075" upper="0" velocity="${velocity}"/>
 			<origin rpy="0 0 0" xyz="0 0 0.2"/>
 			<parent link="wrist"/>
-			<child link="left_gripper"/>
-		</joint>
-		
+			<child link="${prefix}_gripper"/>
+		</joint>		
 	</xacro:macro>
 	
 	<xacro:gripper prefix="left" reflect="1"  y = 0/>
