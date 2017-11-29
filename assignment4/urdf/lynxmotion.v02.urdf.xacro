@@ -1,9 +1,25 @@
 <?xml version="1.0"?>
 	<robot name="lynxmotion" xmlns:xacro="http://ros.org/wiki/xacro">
 	
-	<xacro:property name="velocity" value="0.5"/>
-		<!--Should have better name for it-->
-	<xacro:property name="Len" value="1.57075"/>
+	<!---
+		bottom_arm is shoulder
+		top_arm is ebow
+	-->
+	<xacro:property name="shoulder2Elbow" value="0.12065"/>
+	<xacro:property name="Elbow2Wrist" value="0.127"/>
+	<!---The gripper size is stable-->
+	<xacro:property name="Wrist2Tip" value="0.085725"/>
+    <xacro:property name="HeightReachingUp" value="0.4005"/>
+    <xacro:property name="velocity" value="0.5"/>
+   
+	<!--Should have better name for it-->
+	<xacro:property name="Deg90" value="1.57075"/>
+	<xacro:property name="PI" value="3.1415"/>
+	<xacro:property name="thickness" value="0.05"/>
+	<xacro:property name="baseLength" value="0.1"/>
+	<xacro:property name="baseRadius" value="0.15"/>
+	
+	
 		
 	<material name="blue">
 		<color rgba="0 0 0.8 1"/>
@@ -11,11 +27,14 @@
 	<material name="green">
 		<color rgba="0 0.5 0 1"/>
 	</material>
+	<material name="light_blue">
+		<color rgba="0 0.25 0.5 1"/>
+	</material>
 	
 	<link name="base_link">
 		<visual>
 			<geometry>
-				<cylinder length="0.2" radius="0.3"/>
+				<cylinder length="${baseLength}" radius="${baseRadius}"/>
 			</geometry>
 			<material name="green"/>
 		</visual>
@@ -24,44 +43,54 @@
 	<link name="base_rotate">
 		<visual>
 			<geometry>
-				<cylinder length="0.2" radius="0.1"/>
+				<cylinder length="${shoulder2Elbow/2}" radius="${baseRadius/3}"/>
 			</geometry>
-			<origin rpy="0 0 0" xyz="0 0 0.1"/>
+			<origin rpy="0 0 0" xyz="0 0 ${baseLength}"/>
 		</visual>
 	</link>
 	
 	<link name="bottom_arm">
 		<visual>
 			<geometry>
-				<box size="0.4 0.2 0.05"/>
+				<box size="${shoulder2Elbow} ${thickness} 0.05"/>
 			</geometry>
 			<material name="blue"/>
-			<origin rpy="0 ${Len} 0" xyz="0 0 0.2"/>
+			<origin rpy="0 ${Deg90} 0" xyz="0 0 ${shoulder2Elbow/2}"/>
 		</visual>
 	</link>
 	
 	<link name="top_arm">
 		<visual>
 			<geometry>
-				<box size="0.4 0.2 0.05"/>
+				<box size="${Elbow2Wrist} ${thickness} 0.05"/>
 			</geometry>
-			<origin rpy="0 ${Len} 0" xyz="0 0 0.2"/>
+			<origin rpy="0 ${Deg90} 0" xyz="0 0 ${Elbow2Wrist/2}"/>
+		</visual>
+	</link>
+		
+	<link name="fore_arm">
+		<visual>
+			<geometry>
+				<box size="${Wrist2Tip/2} ${thickness} 0.05"/>
+			</geometry>
+			<material name="light_blue"/>
+			<origin rpy="0 ${Deg90} 0" xyz="0 0 ${Wrist2Tip/4}"/>
 		</visual>
 	</link>
 	
 	<link name="wrist">
 		<visual>
 			<geometry>
-				<box size="0.2 0.1 0.05"/>
+				<box size="${Wrist2Tip/2} ${thickness} 0.05"/>
 			</geometry>
-			<origin rpy="0 -${Len} 0" xyz="0 0 0.1"/>
+			<origin rpy="0 -${Deg90} 0" xyz="0 0 ${Wrist2Tip/4}"/>
 		</visual>
 	</link>
 	
-	<xacro:macro name = "gripper" params="prefix reflect y">
+	<xacro:macro name = "gripper" params="prefix origin_y lower_limit upper_limit">
 		<link name="${prefix}_gripper">
 			<visual>
-				<origin rpy="-${reflect*Len} ${reflect*Len} 0" xyz="0 0 0"/>
+				<origin rpy="-${Deg90} 0 ${origin_y}" xyz="0 0 0"/>
 				<geometry>
 					<mesh filename="package://urdf_tutorial/meshes/l_finger.dae"/>
 				</geometry>
@@ -70,22 +99,21 @@
 	
 		<joint name="${prefix}_gripper_joint" type="revolute">
 			<axis xyz="0 1 0"/>
-			<limit effort="1000.0" lower="-1.57075" upper="0" velocity="${velocity}"/>
+			<limit effort="1000.0" lower="${lower_limit}" upper="${upper_limit}" velocity="${velocity}"/>
 			<origin rpy="0 0 0" xyz="0 0 0.2"/>
 			<parent link="wrist"/>
 			<child link="${prefix}_gripper"/>
 		</joint>		
 	</xacro:macro>
 	
-	<xacro:gripper prefix="left" reflect="1"  y = 0/>
-    <xacro:gripper prefix="right" reflect="-1" y = 3.1415/>
-
+	<xacro:gripper prefix="right" origin_y="0" lower_limit="-${Deg90}" upper_limit="0"/>
+    <xacro:gripper prefix="left" origin_y="${PI}"  lower_limit="0" upper_limit="${Deg90}"/>
 	
 	
 	<joint name="base_block_to_base_link" type="revolute">
 		<axis xyz="0 0 1"/>
-		<limit effort="1000.0" lower="-1.548" upper="1.548" velocity="${velocity}"/>
-		<origin xyz="0 0 0.1"/>
+		<limit effort="1000.0" lower="-${Deg90}" upper="${Deg90}" velocity="${velocity}"/>
+		<origin xyz="0 0 ${baseLength/2}"/>
 		<parent link="base_link"/>
 		<child link="base_rotate"/>
 	</joint>
@@ -93,26 +121,33 @@
 	
 	<joint name="base_to_bottom_arm" type="revolute">
 		<axis xyz="0 1 0"/>
-		<limit effort="1000.0" lower="-1.548" upper="1.548" velocity="${velocity}"/>
-		<origin xyz="0 0 0.2"/>
+		<limit effort="1000.0" lower="-${Deg90}" upper="${Deg90}" velocity="${velocity}"/>
+		<origin xyz="0 0 ${shoulder2Elbow/2}"/>
 		<parent link="base_rotate"/>
 		<child link="bottom_arm"/>
 	</joint>
 	
 	
-	
 	<joint name="bottom_to_top_arm" type="revolute">
 		<axis xyz="0 1 0"/>
-		<limit effort="1000.0" lower="-1.548" upper="1.548" velocity="${velocity}"/>
-		<origin xyz="0 0 0.4"/>
+		<limit effort="1000.0" lower="-${Deg90}" upper="${Deg90}" velocity="${velocity}"/>
+		<origin xyz="0 0 ${Elbow2Wrist}"/>
 		<parent link="bottom_arm"/>
 		<child link="top_arm"/>
+	</joint>
+		
+	<joint name="top_to_fore_arm" type="revolute">
+		<axis xyz="0 1 0"/>
+		<limit effort="1000.0" lower="-${Deg90}" upper="${Deg90}" velocity="0.5"/>
+		<origin xyz="0 0 ${Wrist2Tip}"/>
+		<parent link="top_arm"/>
+		<child link="fore_arm"/>
 	</joint>
 	
 	<joint name="wrist_rotate" type="revolute">
 		<axis xyz="0 0 1"/>
-		<limit effort="1000.0" lower="-1.548" upper="1.548" velocity="${velocity}"/>
-		<origin xyz="0 0 0.4"/>
+		<limit effort="1000.0" lower="-${Deg90}" upper="${Deg90}" velocity="${velocity}"/>
+		<origin xyz="0 0 ${Wrist2Tip/4}"/>
 		<parent link="top_arm"/>
 		<child link="wrist"/>
 	</joint>
