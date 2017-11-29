@@ -49,12 +49,22 @@
 		</visual>
 	</link>
 	
+	<link name="fore_arm">
+		<visual>
+			<geometry>
+				<box size="0.1 0.1 0.05"/>
+			</geometry>
+			<material name="light_blue"/>
+			<origin rpy="0 1.57075 0" xyz="0 0 0.05"/>
+		</visual>
+	</link>
+	
 	<link name="wrist">
 		<visual>
 			<geometry>
-				<box size="0.2 0.1 0.05"/>
+				<box size="0.1 0.1 0.05"/>
 			</geometry>
-			<origin rpy="0 -1.57075 0" xyz="0 0 0.1"/>
+			<origin rpy="0 -1.57075 0" xyz="0 0 0.05"/>
 		</visual>
 	</link>
 	
@@ -81,7 +91,7 @@
 	<joint name="left_gripper_joint" type="revolute">
 		<axis xyz="0 1 0"/>
 		<limit effort="1000.0" lower="0" upper="1.57075" velocity="0.5"/>
-		<origin rpy="0 0 0" xyz="0 0 0.2"/>
+		<origin rpy="0 0 0" xyz="0 0 0.1"/>
 		<parent link="wrist"/>
 		<child link="left_gripper"/>
 	</joint>
@@ -89,7 +99,7 @@
 	<joint name="right_gripper_joint" type="revolute">
 		<axis xyz="0 1 0"/>
 		<limit effort="1000.0" lower="-1.57075" upper="0" velocity="0.5"/>
-		<origin rpy="0 0 0" xyz="0 0 0.2"/>
+		<origin rpy="0 0 0" xyz="0 0 0.1"/>
 		<parent link="wrist"/>
 		<child link="right_gripper"/>
 	</joint>
@@ -121,11 +131,19 @@
 		<child link="top_arm"/>
 	</joint>
 	
-	<joint name="wrist_rotate" type="revolute">
-		<axis xyz="0 0 1"/>
+	<joint name="top_to_fore_arm" type="revolute">
+		<axis xyz="0 1 0"/>
 		<limit effort="1000.0" lower="-1.548" upper="1.548" velocity="0.5"/>
 		<origin xyz="0 0 0.4"/>
 		<parent link="top_arm"/>
+		<child link="fore_arm"/>
+	</joint>
+	
+	<joint name="wrist_rotate" type="revolute">
+		<axis xyz="0 0 1"/>
+		<limit effort="1000.0" lower="-1.548" upper="1.548" velocity="0.5"/>
+		<origin xyz="0 0 0.1"/>
+		<parent link="fore_arm"/>
 		<child link="wrist"/>
 	</joint>
 	
