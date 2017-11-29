@@ -43,9 +43,9 @@
 	<link name="base_rotate">
 		<visual>
 			<geometry>
-				<cylinder length="${shoulder2Elbow/2}" radius="${baseRadius/3}"/>
+				<cylinder length="${baseLength}" radius="${baseRadius/3}"/>
 			</geometry>
-			<origin rpy="0 0 0" xyz="0 0 ${baseLength}"/>
+			<origin rpy="0 0 0" xyz="0 0 ${baseLength/2}"/>
 		</visual>
 	</link>
 	
@@ -71,10 +71,10 @@
 	<link name="fore_arm">
 		<visual>
 			<geometry>
-				<box size="${Wrist2Tip/2} ${thickness} 0.05"/>
+				<box size="${Elbow2Wrist} ${thickness} 0.05"/>
 			</geometry>
 			<material name="light_blue"/>
-			<origin rpy="0 ${Deg90} 0" xyz="0 0 ${Wrist2Tip/4}"/>
+			<origin rpy="0 ${Deg90} 0" xyz="0 0 ${Elbow2Wrist/2}"/>
 		</visual>
 	</link>
 	
@@ -100,7 +100,7 @@
 		<joint name="${prefix}_gripper_joint" type="revolute">
 			<axis xyz="0 1 0"/>
 			<limit effort="1000.0" lower="${lower_limit}" upper="${upper_limit}" velocity="${velocity}"/>
-			<origin rpy="0 0 0" xyz="0 0 0.2"/>
+			<origin rpy="0 0 0" xyz="0 0 ${Wrist2Tip/2}"/>
 			<parent link="wrist"/>
 			<child link="${prefix}_gripper"/>
 		</joint>		
@@ -122,7 +122,7 @@
 	<joint name="base_to_bottom_arm" type="revolute">
 		<axis xyz="0 1 0"/>
 		<limit effort="1000.0" lower="-${Deg90}" upper="${Deg90}" velocity="${velocity}"/>
-		<origin xyz="0 0 ${shoulder2Elbow/2}"/>
+		<origin xyz="0 0 ${baseLength}"/>
 		<parent link="base_rotate"/>
 		<child link="bottom_arm"/>
 	</joint>
@@ -131,7 +131,7 @@
 	<joint name="bottom_to_top_arm" type="revolute">
 		<axis xyz="0 1 0"/>
 		<limit effort="1000.0" lower="-${Deg90}" upper="${Deg90}" velocity="${velocity}"/>
-		<origin xyz="0 0 ${Elbow2Wrist}"/>
+		<origin xyz="0 0 ${shoulder2Elbow}"/>
 		<parent link="bottom_arm"/>
 		<child link="top_arm"/>
 	</joint>
@@ -139,7 +139,7 @@
 	<joint name="top_to_fore_arm" type="revolute">
 		<axis xyz="0 1 0"/>
 		<limit effort="1000.0" lower="-${Deg90}" upper="${Deg90}" velocity="0.5"/>
-		<origin xyz="0 0 ${Wrist2Tip}"/>
+		<origin xyz="0 0 ${Elbow2Wrist}"/>
 		<parent link="top_arm"/>
 		<child link="fore_arm"/>
 	</joint>
@@ -147,8 +147,8 @@
 	<joint name="wrist_rotate" type="revolute">
 		<axis xyz="0 0 1"/>
 		<limit effort="1000.0" lower="-${Deg90}" upper="${Deg90}" velocity="${velocity}"/>
-		<origin xyz="0 0 ${Wrist2Tip/4}"/>
-		<parent link="top_arm"/>
+		<origin xyz="0 0 ${Elbow2Wrist}"/>
+		<parent link="fore_arm"/>
 		<child link="wrist"/>
 	</joint>
 	
