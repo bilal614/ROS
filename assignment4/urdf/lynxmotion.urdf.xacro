@@ -33,7 +33,7 @@
 	<link name="bottom_arm">
 		<visual>
 			<geometry>
-				<box size="0.4 0.2 0.05"/>
+				<box size="0.4 0.1 0.05"/>
 			</geometry>
 			<material name="blue"/>
 			<origin rpy="0 1.57075 0" xyz="0 0 0.2"/>
@@ -43,7 +43,7 @@
 	<link name="top_arm">
 		<visual>
 			<geometry>
-				<box size="0.4 0.2 0.05"/>
+				<box size="0.4 0.1 0.05"/>
 			</geometry>
 			<origin rpy="0 1.57075 0" xyz="0 0 0.2"/>
 		</visual>
