@@ -4,9 +4,22 @@
 #include <turtlebot_actions/TurtlebotMoveAction.h>
 #include <assignment5/Triangle.h>
 
+/*Glocal variables*/
+ros::Subscriber cmd_sub;
+//Received triangle message
+assignment5::Triangle re_msg;
+
+/*Print the received messages from publisher*/
+void cmdCallback(const assignment5::Triangle::ConstPtr& msg);
+
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "move_triangle");
+
+	//Handler
+	ros::NodeHandle n;
+
+	cmd_sub = n.subscribe("cmd", 10, cmdCallback);
 
 	// create the action client
 	// true causes the client to spin its own thread
@@ -35,4 +48,12 @@ int main(int argc, char **argv)
 
 	//exit
 	return 0;
+}
+
+//TODO - Debug this
+void cmdCallback(const assignment5::Triangle::ConstPtr& msg) {
+	re_msg.sideLength = msg->sideLength;
+	re_msg.cw = msg->cw;
+	ROS_INFO("Triangle info: sideLength: [%f] - cw: [%d]", msg->sideLength, msg->cw);
+	/*Draw triangle with red color*/
 }
