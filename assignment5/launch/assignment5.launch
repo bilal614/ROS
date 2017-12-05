@@ -1,0 +1,23 @@
+<launch>
+
+    <node
+		pkg="stage_ros"
+		type="stageros"
+		name="emptyStage"
+		args="$(find assignment5)/world/empty.world" 
+	/>
+	
+    <node
+		pkg="assignment5"
+		type="turtlebot_action_server"
+		name="turtlebot_move_action_server"
+		launch-prefix="xterm -e"
+	/>
+	
+	<node
+		pkg="assignment5"
+		type="move_triangle_client"
+		name="move_triangle"
+		launch-prefix="xterm -e"
+	/>
+</launch>
