@@ -1,0 +1,9 @@
+Use roslaunch assignment5 assignment5.launch to run the following node:
+1. Triangle_publisher -> get the sideLength and the cw from params of launch file
+and publish triangle message via /cmd topic
+2. Move_triangle -> action client, subcrible a /cmd topic then request an moving action
+to the action server
+3. Turtlebot_Action_server -> action server
+4. At this moment stage is use for simulation
+--
+Question on interagted TF?
