@@ -168,25 +168,31 @@ include_directories(
 
 
 add_executable(move_triangle_client src/move_triangle.cpp)
-
 target_link_libraries(
   move_triangle_client
   ${catkin_LIBRARIES}
 )
-
 add_dependencies(
   move_triangle_client
   ${assignment5_EXPORTED_TARGETS}
 )
 
 add_executable(turtlebot_action_server src/turtlebot_action_server.cpp)
-
 target_link_libraries(
   turtlebot_action_server
   ${catkin_LIBRARIES}
 )
-
 add_dependencies(
   turtlebot_action_server
+  ${assignment5_EXPORTED_TARGETS}
+)
+
+add_executable(triangle_publisher src/triangle_publisher.cpp)
+target_link_libraries(
+  triangle_publisher
+  ${catkin_LIBRARIES}
+)
+add_dependencies(
+  triangle_publisher
   ${assignment5_EXPORTED_TARGETS}
 )
