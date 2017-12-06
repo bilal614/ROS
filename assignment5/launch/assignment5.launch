@@ -8,9 +8,9 @@
 	/>
 	
     <node
-		pkg="assignment5"
-		type="turtlebot_action_server"
-		name="turtlebot_move_action_server"
+		pkg="turtlebot_actions"
+		type="turtlebot_move_action_server"
+		name="move_action_server"
 		launch-prefix="xterm -e"
 	/>
 	

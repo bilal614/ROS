@@ -177,16 +177,6 @@ add_dependencies(
   ${assignment5_EXPORTED_TARGETS}
 )
 
-add_executable(turtlebot_action_server src/turtlebot_action_server.cpp)
-target_link_libraries(
-  turtlebot_action_server
-  ${catkin_LIBRARIES}
-)
-add_dependencies(
-  turtlebot_action_server
-  ${assignment5_EXPORTED_TARGETS}
-)
-
 add_executable(triangle_publisher src/triangle_publisher.cpp)
 target_link_libraries(
   triangle_publisher
