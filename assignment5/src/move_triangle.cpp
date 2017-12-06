@@ -11,6 +11,7 @@ assignment5::Triangle re_msg;
 
 /*Print the received messages from publisher*/
 void cmdCallback(const assignment5::Triangle::ConstPtr& msg);
+void actionRequest();
 
 int main(int argc, char **argv)
 {
@@ -21,6 +22,7 @@ int main(int argc, char **argv)
 
 	cmd_sub = n.subscribe("cmd", 10, cmdCallback);
 
+	//actionRequest();
 	// create the action client
 	// true causes the client to spin its own thread
 	actionlib::SimpleActionClient<turtlebot_actions::TurtlebotMoveAction> ac(
@@ -32,8 +34,14 @@ int main(int argc, char **argv)
 
 	ROS_INFO("Action server started, sending goal.");
 	// send a goal to the action
-	turtlebot_actions::TurtlebotMoveActionGoal goal;
+	turtlebot_actions::TurtlebotMoveActionGoal goalAction;
 	//TODO investiage the goal message of turtle_bot actions
+
+	goalAction.goal.forward_distance = 3;
+	goalAction.goal.turn_distance = 0.5;
+	goalAction.goal.forward_distance = -3;
+
+	//ac.sendGoal(goalAction);
 
 	//wait for the action to return
 	bool finished_before_timeout = ac.waitForResult(ros::Duration(30.0));
@@ -51,7 +59,8 @@ int main(int argc, char **argv)
 }
 
 //TODO - Debug this
-void cmdCallback(const assignment5::Triangle::ConstPtr& msg) {
+void cmdCallback(const assignment5::Triangle::ConstPtr& msg)
+{
 	re_msg.sideLength = msg->sideLength;
 	re_msg.cw = msg->cw;
 	ROS_INFO("Triangle info: sideLength: [%f] - cw: [%d]", msg->sideLength, msg->cw);
