@@ -1,11 +1,27 @@
 <launch>
-
-    <node
-		pkg="stage_ros"
-		type="stageros"
-		name="emptyStage"
-		args="$(find assignment5)/world/empty.world" 
-	/>
+  <!--  ******************** Stage ********************  -->
+  <!-- 
+        Publishes transforms:
+          /base_link -> /base_laser
+          /base_footprint -> /base_link (identity)
+          /odom -> base_footprint
+        Publishes topics:
+          /odom : odometry data from the simulated odometry
+          /base_scan : laser data from the simulated laser
+          /base_pose_ground_truth : the ground truth pose
+        Parameters:
+          base_watchdog_timeout : time (s) after receiving the last command on cmd_vel before stopping the robot
+        Args:
+          -g : run in headless mode.
+  --> 
+	
+	<node pkg="stage_ros" type="stageros" name="stageros" args="$(find assignment5)/world/empty.world">
+	    <param name="base_watchdog_timeout" value="0.5"/>
+	    <remap from="odom" to="odom"/>
+	    <remap from="base_pose_ground_truth" to="base_pose_ground_truth"/>
+	    <remap from="cmd_vel" to="mobile_base/commands/velocity"/>
+	    <remap from="base_scan" to="scan"/>
+	</node>
 	
     <node
 		pkg="turtlebot_actions"
