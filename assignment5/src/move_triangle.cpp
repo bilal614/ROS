@@ -4,29 +4,15 @@
 #include <turtlebot_actions/TurtlebotMoveAction.h>
 #include <assignment5/Triangle.h>
 
-/*Glocal variables*/
-ros::Subscriber cmd_sub;
-//Received triangle message
-assignment5::Triangle re_msg;
-
-/*Print the received messages from publisher*/
-void cmdCallback(const assignment5::Triangle::ConstPtr& msg);
-void actionRequest();
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "move_triangle");
+	ros::init(argc, argv, "test_turtle");
 
-	//Handler
-	ros::NodeHandle n;
-
-	cmd_sub = n.subscribe("cmd", 10, cmdCallback);
-
-	//actionRequest();
 	// create the action client
 	// true causes the client to spin its own thread
 	actionlib::SimpleActionClient<turtlebot_actions::TurtlebotMoveAction> ac(
-			"TurtlebotMoveAction", true);
+			"turtlebot_move", true);
 
 	ROS_INFO("Waiting for action server to start.");
 	// wait for the action server to start
@@ -34,15 +20,15 @@ int main(int argc, char **argv)
 
 	ROS_INFO("Action server started, sending goal.");
 	// send a goal to the action
-	turtlebot_actions::TurtlebotMoveActionGoal goalAction;
+	turtlebot_actions::TurtlebotMoveGoal goalAction;
 	//TODO investiage the goal message of turtle_bot actions
 
-	goalAction.goal.forward_distance = 3;
-	goalAction.goal.turn_distance = 0.5;
-	goalAction.goal.forward_distance = -3;
+	goalAction.forward_distance = 3.0f;
+	goalAction.turn_distance = M_PI/4;
 
-	//ac.sendGoal(goalAction);
-
+	ac.sendGoal(goalAction);
+	
+	//actionlib::SimpleClientGoalState state = ac.sendGoalAndWait(goalAction, ros::Duration(30.0));
 	//wait for the action to return
 	bool finished_before_timeout = ac.waitForResult(ros::Duration(30.0));
 
@@ -56,13 +42,4 @@ int main(int argc, char **argv)
 
 	//exit
 	return 0;
-}
-
-//TODO - Debug this
-void cmdCallback(const assignment5::Triangle::ConstPtr& msg)
-{
-	re_msg.sideLength = msg->sideLength;
-	re_msg.cw = msg->cw;
-	ROS_INFO("Triangle info: sideLength: [%f] - cw: [%d]", msg->sideLength, msg->cw);
-	/*Draw triangle with red color*/
 }
