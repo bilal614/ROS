@@ -1,0 +1,15 @@
+<launch>
+	<node 
+		pkg="turtlesim" 
+		name="turtlesim_node" 
+		type="turtlesim_node"
+	/>
+
+	<node
+		pkg="assignment1"
+		name="turtle_communicator"
+		type="traveler"
+		required="true"
+		launch-prefix="xterm -e"
+	/>
+</launch>
