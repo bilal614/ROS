@@ -1,6 +1,6 @@
 #include "traveler.hpp"
 
-	
+
 
 int main(int argc, char **argv)
 {	
