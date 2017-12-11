@@ -1,40 +1,12 @@
 <launch>
-  <!--  ******************** Stage ********************  -->
-  <!-- 
-        Publishes transforms:
-          /base_link -> /base_laser
-          /base_footprint -> /base_link (identity)
-          /odom -> base_footprint
-        Publishes topics:
-          /odom : odometry data from the simulated odometry
-          /base_scan : laser data from the simulated laser
-          /base_pose_ground_truth : the ground truth pose
-        Parameters:
-          base_watchdog_timeout : time (s) after receiving the last command on cmd_vel before stopping the robot
-        Args:
-          -g : run in headless mode.
-  --> 
+	<include file="$(find turtlebot_stage)/launch/turtlebot_in_stage.launch"> 
+		<arg name="world_file" value="$(find assignment5)/world/empty.world" />
+		<arg name="initial_pose_x" default="0.0"/>
+		<arg name="initial_pose_y" default="0.0"/>
+	</include>
 	
-	<node pkg="stage_ros" type="stageros" name="stageros" args="$(find assignment5)/world/empty.world">
-	    <param name="base_watchdog_timeout" value="0.5"/>
-	    <remap from="odom" to="odom"/>
-	    <remap from="base_pose_ground_truth" to="base_pose_ground_truth"/>
-	    <remap from="cmd_vel" to="mobile_base/commands/velocity"/>
-	    <remap from="base_scan" to="scan"/>
-	</node>
+	<include file="$(find turtlebot_actions)/launch/server_turtlebot_move.launch"/>
 	
-	 <node
-		pkg="turtlebot_actions"
-		type="turtlebot_move_action_server"
-		name="move_action_server"
-		launch-prefix="xterm -e"
-	/>
-	
-	<node
-		pkg="assignment5"
-		type="move_triangle_client"
-		name="move_triangle"
-		launch-prefix="xterm -e"
-	/>
-	
+	<node pkg="assignment5"	type="move_triangle_client"	name="move_triangle" output="screen" />
+
 </launch>

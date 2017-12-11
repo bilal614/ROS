@@ -23,7 +23,7 @@ int main(int argc, char **argv)
 	turtlebot_actions::TurtlebotMoveGoal goalAction;
 	//TODO investiage the goal message of turtle_bot actions
 
-	goalAction.forward_distance = 3.0f;
+	goalAction.forward_distance = 4.0f;
 	goalAction.turn_distance = M_PI/4;
 
 	ac.sendGoal(goalAction);
@@ -40,6 +40,7 @@ int main(int argc, char **argv)
 	else
 		ROS_INFO("Action did not finish before the time out.");
 
+	usleep(5000000);
 	//exit
 	return 0;
 }
