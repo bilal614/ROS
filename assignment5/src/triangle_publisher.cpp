@@ -39,7 +39,6 @@ int main(int argc, char **argv)
 
 		triangle_pub.publish(msg);
 
-		//Testing
 		ros::spinOnce();
 	}
 
