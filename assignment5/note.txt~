@@ -7,7 +7,3 @@ to the action server
 4. At this moment stage is use for simulation
 --
 Question on interagted TF?
-
-Use this command for publisher
-rostopic pub -1 cmd assignment5/Triangle -- 5.0 false
-

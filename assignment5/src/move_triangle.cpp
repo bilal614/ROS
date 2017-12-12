@@ -12,18 +12,19 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "test_turtle");
 	
-	//ros::NodeHandle nh;
-	//ros::Subscriber subs = nh.subscribe("triangles", 1000, &TriangleMessageCallback);
+	ros::NodeHandle nh;
+	ros::Subscriber subs = nh.subscribe("cmd", 1000, &TriangleMessageCallback);
 
 	// create the action client
 	// true causes the client to spin its own thread
 	actionlib::SimpleActionClient<turtlebot_actions::TurtlebotMoveAction> ac(
 			"turtlebot_move", true);
-	/*
+	
 	while(!triangle_trigger)
 	{
+		ros::spinOnce();
 	}
-	*/
+	
 	ROS_INFO("Waiting for action server to start.");
 	// wait for the action server to start
 	ac.waitForServer(); //will wait for infinite time
@@ -36,14 +37,29 @@ int main(int argc, char **argv)
 	int count = 0;
 	while(count < 3)
 	{
-		goalAction.forward_distance = 4.0f;
-		goalAction.turn_distance = M_PI*2/3;
-
+		//goalAction.forward_distance = 4.0f;
+		//goalAction.turn_distance = M_PI*2/3;
+		goalAction.forward_distance = triangleDrawing.sideLength;
+		if(count == 0)
+		{
+			goalAction.turn_distance = 0.0;
+		}
+		else
+		{
+			if(triangleDrawing.cw)
+			{
+				goalAction.turn_distance = M_PI*2/3;
+			}
+			else
+			{
+				goalAction.turn_distance = -M_PI*2/3;
+			}
+		}
 		ac.sendGoal(goalAction);
 		
 		//actionlib::SimpleClientGoalState state = ac.sendGoalAndWait(goalAction, ros::Duration(30.0));
 		//wait for the action to return
-		bool finished_before_timeout = ac.waitForResult(ros::Duration(30.0));
+		bool finished_before_timeout = ac.waitForResult(ros::Duration(15.0));
 
 		if (finished_before_timeout)
 		{
@@ -66,4 +82,5 @@ void TriangleMessageCallback(const assignment5::Triangle& msg)
 		
 	triangleDrawing.sideLength = msg.sideLength;
 	triangleDrawing.cw = msg.cw;
+	triangle_trigger = true;
 }
