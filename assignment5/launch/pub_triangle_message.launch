@@ -1,0 +1,11 @@
+
+<launch>
+	<node
+		pkg="assignment5"
+		type="triangle_publisher"
+		name="triangle_publisher_cmd"
+		output="screen"
+	/>
+	<param name="cw" value="true" />	
+	<param name="sideLength" value="5" /> 
+</launch>

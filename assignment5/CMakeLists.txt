@@ -176,13 +176,12 @@ add_dependencies(
   move_triangle_client
   ${assignment5_EXPORTED_TARGETS}
 )
-
-#add_executable(triangle_publisher src/triangle_publisher.cpp)
-#target_link_libraries(
-#  triangle_publisher
-#  ${catkin_LIBRARIES}
-#)
-#add_dependencies(
-#  triangle_publisher
-#  ${assignment5_EXPORTED_TARGETS}
-#)
+add_executable(triangle_publisher src/triangle_publisher.cpp)
+target_link_libraries(
+  triangle_publisher
+  ${catkin_LIBRARIES}
+)
+add_dependencies(
+  triangle_publisher
+  ${assignment5_EXPORTED_TARGETS}
+)

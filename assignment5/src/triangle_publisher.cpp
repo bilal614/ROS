@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 	ros::NodeHandle n;
 
 
-	ros::Publisher triangle_pub = n.advertise<assignment5::Triangle>("cmd",10);
+	ros::Publisher triangle_pub = n.advertise<assignment5::Triangle>("cmd",1000);
 
 
 	ros::Rate loop_rate(10);
@@ -39,8 +39,9 @@ int main(int argc, char **argv)
 
 		triangle_pub.publish(msg);
 
-		ros::spin();
+		ros::spinOnce();
 	}
+
 
   return 0;
 }
