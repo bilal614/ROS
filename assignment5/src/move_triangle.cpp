@@ -32,8 +32,7 @@ int main(int argc, char **argv)
 	ROS_INFO("Action server started, sending goal.");
 	// send a goal to the action
 	turtlebot_actions::TurtlebotMoveGoal goalAction;
-	//TODO investiage the goal message of turtle_bot actions
-
+	
 	int count = 0;
 	while(count < 3)
 	{
@@ -52,7 +51,7 @@ int main(int argc, char **argv)
 			}
 			else
 			{
-				goalAction.turn_distance = -M_PI*2/3;
+				goalAction.turn_distance = -1*M_PI*2/3;
 			}
 		}
 		ac.sendGoal(goalAction);
