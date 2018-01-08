@@ -1,3 +1,0 @@
-<launch>
-  <node pkg="stage_ros" type="stageros" name="stageros" args="$(find stage_worlds)/world/empty.world" respawn="false" output="screen" />
-</launch>
