@@ -27,38 +27,23 @@ int main(int argc, char** argv)
 		goal.target_pose.header.stamp = ros::Time::now();
 		float x[NrOfCoordinates] = {0.0};
 		float y[NrOfCoordinates] = {0.0};
-		float w[NrOfCoordinates] = {0.0};
+		float w[NrOfCoordinates] = {1.0};
 		switch(counter)
 		{
 			case 0:
-				GetFloatParam("poseX1", &x[counter]);
-				GetFloatParam("poseY1", &y[counter]);
-				GetFloatParam("poseW1", &w[counter]);
-				break;
+				GetFloatParam("poseX1", &x[counter]); GetFloatParam("poseY1", &y[counter]); break;
 			case 1:
-				GetFloatParam("poseX2", &x[counter]);
-				GetFloatParam("poseY2", &y[counter]);
-				GetFloatParam("poseW2", &w[counter]);
-				break;
+				GetFloatParam("poseX2", &x[counter]); GetFloatParam("poseY2", &y[counter]);	break;
 			case 2:
-				GetFloatParam("poseX3", &x[counter]);
-				GetFloatParam("poseY3", &y[counter]);
-				GetFloatParam("poseW3", &w[counter]);
-				break;
+				GetFloatParam("poseX3", &x[counter]); GetFloatParam("poseY3", &y[counter]);	break;
 			case 3:
-				GetFloatParam("poseX4", &x[counter]);
-				GetFloatParam("poseY4", &y[counter]);
-				GetFloatParam("poseW4", &w[counter]);
-				break;
+				GetFloatParam("poseX4", &x[counter]); GetFloatParam("poseY4", &y[counter]);	break;
 			default:
 				break;
 		}
 		goal.target_pose.pose.position.x = x[counter];
 		goal.target_pose.pose.position.y = y[counter];
 		goal.target_pose.pose.orientation.w = w[counter];
-		//goal.target_pose.pose.position.x = 1.0;
-		//goal.target_pose.pose.position.y = -1.0;
-		//goal.target_pose.pose.orientation.w = 1.0;
 
 		ROS_INFO("Sending goal");
 		ac.sendGoal(goal);

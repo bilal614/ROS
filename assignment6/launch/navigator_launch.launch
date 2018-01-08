@@ -11,17 +11,13 @@
 	/>
 	<param name="poseX1" value="-1.0" /> 
 	<param name="poseY1" value="-1.0" />
-	<param name="poseW1" value="1.0" />
 	
 	<param name="poseX2" value="-2.0" /> 
 	<param name="poseY2" value="-2.0" />
-	<param name="poseW2" value="1.0" />
 	
 	<param name="poseX3" value="1.0" /> 
 	<param name="poseY3" value="1.0" />
-	<param name="poseW3" value="1.0" />
 	
 	<param name="poseX4" value="2.0" /> 
 	<param name="poseY4" value="-1.0" />
-	<param name="poseW4" value="1.0" />
 </launch>
