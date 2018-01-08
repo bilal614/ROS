@@ -197,3 +197,5 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+add_executable(simple_navigation_goals src/navigator.cpp)
+target_link_libraries(simple_navigation_goals ${catkin_LIBRARIES})
