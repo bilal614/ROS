@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 		goal.target_pose.header.stamp = ros::Time::now();
 		float x[NrOfCoordinates] = {0.0};
 		float y[NrOfCoordinates] = {0.0};
-		float w[NrOfCoordinates] = {1.0};
+		float w[NrOfCoordinates] = {1.0, 1.0, 1.0, 1.0};
 		switch(counter)
 		{
 			case 0:
