@@ -6,7 +6,7 @@
   <include file="$(find stage_worlds)/launch/kinect_world.launch" />
 	
   <!-- Arbiter -->
-  <node name="arbiter" pkg="stage_behavior" type="arbiter">
+  <node name="arbiter" pkg="stage_behavior" type="arbiter" launch-prefix="xterm -e">
     <param name="inputs" value="3" />
     <param name="publish_rate" value="10" />
   </node>
@@ -27,14 +27,14 @@
   <!-- Other behavior -->
 <!--
   <node name="other" pkg="stage_behavior" type="other_behavior">
-    <remap from="cmd_vel" to="cmd_vel2"/>
+    <remap from="cmd_vel" to="cmd_vel0"/>
     <param name="publish_rate" value="10"/>
   </node>
 -->
 
   <!-- Cruise behavior -->
   <node name="cruise" pkg="stage_behavior" type="cruise_behavior">
-    <remap from="cmd_vel" to="cmd_vel3"/>
+    <remap from="cmd_vel" to="cmd_vel2"/>
     <param name="publish_rate" value="10"/>
     <param name="cruise_velocity" value="0.5"/>
   </node>
