@@ -144,7 +144,5 @@ int main(int argc, char **argv)
   Arbiter arbiter;
   arbiter.arbitrate();
  
-  //ros::spin();
-
   return 0;
 }
