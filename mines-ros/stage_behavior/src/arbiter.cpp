@@ -18,6 +18,7 @@ public:
   
   void publish(double angular, double linear);
   void setPriority();
+  void resetPriorityMaks();
   
   void arbitrate();
 
@@ -40,25 +41,32 @@ protected:
 	
 	geometry_msgs::Twist cmd_vel_tele_op, cmd_vel_escape, cmd_vel_cruise;
 	Priority priority_;
-	unsigned char priority_mask_;
+	uint8_t priority_mask_;
 	// methods
 };
 
 ///////////////////////////////////////////////////////////////////////////
 
-Arbiter::Arbiter(): ph_("~"), rate_(1), inputs_(3)
+Arbiter::Arbiter(): ph_("~"), rate_(1), inputs_(3), nh_()
 {
 	ph_.param("publish_rate", rate_, rate_);
 	ph_.param("inputs", inputs_, inputs_);
 	
 	priority_mask_ = 0x00;
-	ros::Subscriber sub_0 = nh_.subscribe("/cmd_vel0", 1, &Arbiter::teleopCallback, this);
-	ros::Subscriber sub_1 = nh_.subscribe("/cmd_vel1", 1, &Arbiter::escape_behaviorCallback, this);
-	ros::Subscriber sub_2 = nh_.subscribe("/cmd_vel2", 1, &Arbiter::cruise_behaviorCallback, this);
 	
 	vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
 	
+	sub_0 = nh_.subscribe("cmd_vel0", rate_, &Arbiter::teleopCallback, this);
+	sub_1 = nh_.subscribe("cmd_vel1", rate_, &Arbiter::escape_behaviorCallback, this);
+	sub_2 = nh_.subscribe("cmd_vel2", rate_, &Arbiter::cruise_behaviorCallback, this);
+	
 	ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "Arbiter constructor is called");
+}
+
+void Arbiter::resetPriorityMaks()
+{
+	priority_mask_ = 0x00;
+	return; 
 }
 
 void Arbiter::publish(double angular, double linear)
@@ -88,8 +96,6 @@ void Arbiter::escape_behaviorCallback(const geometry_msgs::Twist &msg)
 
 void Arbiter::cruise_behaviorCallback(const geometry_msgs::Twist &msg)
 {
-	ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-		<< "msg: " << msg);
 	priority_mask_ |= 0x04;	
 	cmd_vel_cruise.angular.z = msg.angular.z;
 	cmd_vel_cruise.linear.x = msg.linear.x;
@@ -98,8 +104,8 @@ void Arbiter::cruise_behaviorCallback(const geometry_msgs::Twist &msg)
 
 void Arbiter::setPriority()
 {
-	//ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-		//<< "priority_mask: " << (int)priority_mask_);
+	ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+		<< "priority_mask: " << (int)priority_mask_);
 	if(priority_mask_ & 0x01)
 	{
 		priority_ = TELE_OP;
@@ -118,10 +124,7 @@ void Arbiter::setPriority()
 		publish(cmd_vel_cruise.angular.z, cmd_vel_cruise.linear.x);
 		return;
 	}
-	else
-	{
-		priority_mask_ = 0x00;
-	}
+	
 }
 
 void Arbiter::arbitrate()
@@ -131,6 +134,7 @@ void Arbiter::arbitrate()
 		ros::spinOnce();
 		
 		setPriority();
+		resetPriorityMaks();
 	}
 }
 
@@ -138,7 +142,6 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "arbiter");
   Arbiter arbiter;
-  
   arbiter.arbitrate();
  
   //ros::spin();

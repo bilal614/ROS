@@ -25,12 +25,11 @@
   </node>
 
   <!-- Other behavior -->
-<!--
-  <node name="other" pkg="stage_behavior" type="other_behavior">
+
+  <node name="teleop" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" launch-prefix="xterm -e">
     <remap from="cmd_vel" to="cmd_vel0"/>
     <param name="publish_rate" value="10"/>
   </node>
--->
 
   <!-- Cruise behavior -->
   <node name="cruise" pkg="stage_behavior" type="cruise_behavior">
