@@ -3,7 +3,7 @@
   <param name="/use_sim_time" value="true"/>
 
   <!-- Launch stage world -->
-  <include file="$(find stage_worlds)/launch/kinect_world.launch" />
+  <include file="$(find stage_worlds)/launch/laser_world.launch" />
 	
   <!-- Arbiter -->
   <node name="arbiter" pkg="stage_behavior" type="arbiter" launch-prefix="xterm -e">

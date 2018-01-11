@@ -60,14 +60,14 @@ protected:
 
 WallFollowBehavior::WallFollowBehavior():
   ph_("~"),
-  rate_(50),
+  rate_(200),
   state_(IDLE),
   scan_received_(false),
   robot_size_(0.33),
-  bump_distance_(0.75),
+  bump_distance_(1.0),
   wallDistance(0.5),
   maxSpeed(0.2),
-  direction(-1),
+  direction(1),
   P(10.0),
   D(5.0),
   angleCoef(1.0),
@@ -104,37 +104,48 @@ void WallFollowBehavior::scanCallback (const sensor_msgs::LaserScan::ConstPtr& m
 			}
 		}
 		scan_received_ = true; // we have received a scan
+		if(isTriggered()){state_ = FOLLOW_WALL;}
+		return;
 	}
 	
-	int size = msg->ranges.size();
-
-	//Variables whith index of highest and lowest value in array.
-	int minIndex = size*(direction+1)/4;
-	int maxIndex = size*(direction+3)/4;
-	
-	bool keepStateToFollowWall = true;
-	//This cycle goes through array and finds minimum
-	for(int i = minIndex; i < maxIndex; i++)
+	if(state_ == FOLLOW_WALL)
 	{
-		if (msg->ranges[i] != msg->ranges[minIndex]) {
-			keepStateToFollowWall = false;
-		}
-		if ((msg->ranges[i] < msg->ranges[minIndex]) && (msg->ranges[i] > 0.0))
+		int size = msg->ranges.size();
+
+		//Variables whith index of highest and lowest value in array.
+		//int minIndex = size*(direction+1)/4;
+		//int maxIndex = size*(direction+3)/4;
+		int minIndex = 0;
+		int maxIndex = size;
+		
+		bool keepStateToFollowWall = true;
+		//This cycle goes through array and finds minimum
+		for(int i = minIndex; i < maxIndex; i++)
 		{
-		  minIndex = i;
+			//check if we still are following wall
+			
+			if ((msg->ranges[i] < msg->ranges[minIndex]) && (msg->ranges[i] > 0.0))
+			{
+				minIndex = i;
+			}
 		}
+		for(int i = 0; i < size; i++){
+			if (msg->ranges[i] != msg->ranges[minIndex]) {
+				keepStateToFollowWall = false;
+			}
+		}
+		//Calculation of angles from indexes and storing data to class variables.
+		angleMin = (minIndex-size/2)*msg->angle_increment;
+		double distMin;
+		distMin = msg->ranges[minIndex];
+		distFront = msg->ranges[size/2];
+		diffE = (distMin - wallDistance) - e;
+		e = distMin - wallDistance;
+		scan_received_ = true; // we have received a scan
+		
+		//if(!keepStateToFollowWall){state_ = IDLE;}
+		return;
 	}
-	
-	//Calculation of angles from indexes and storing data to class variables.
-	angleMin = (minIndex-size/2)*msg->angle_increment;
-	double distMin;
-	distMin = msg->ranges[minIndex];
-	distFront = msg->ranges[size/2];
-	diffE = (distMin - wallDistance) - e;
-	e = distMin - wallDistance;
-	scan_received_ = true; // we have received a scan
-	
-	//if(!keepStateToFollowWall){state_ = IDLE;}
 }
 
 
@@ -172,21 +183,16 @@ void WallFollowBehavior::update(void)
   ros::Time now = ros::Time::now();
   switch (state_)
   {
-    case IDLE:
-      if (isTriggered())
-      {
-        // start escape
-        ROS_INFO_STREAM("WallFollowBehavior triggered");
-        state_ = FOLLOW_WALL;
-        until_ = now + ros::Duration(1.0);
-        ROS_INFO_STREAM("WallFollowBehavior::FOLLOW_WALL");
-      } else {
-        // just be idle, i.e. do nothing
-      }
-      break;
+	case IDLE:      
+		// start wall follow
+		ROS_INFO_STREAM("WallFollowBehavior triggered");
+		ROS_INFO_STREAM("WallFollowBehavior::FOLLOW_WALL");
+
+		break;
     case FOLLOW_WALL:
-      //publish();
-      
+		ROS_INFO_STREAM("Following Wall");
+		publish();
+      /*
       if(now < until_)
       {
         // follow_wall
@@ -196,7 +202,7 @@ void WallFollowBehavior::update(void)
         until_ = ros::Time::now() + ros::Duration(1.0);
         ROS_INFO_STREAM("WallFollowBehavior::FOLLOW_WALL");
       }
-      
+      */
       break;
     
     default:
