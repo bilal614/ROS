@@ -5,13 +5,13 @@
 /**
  * Priority based arbiter, forwards highest priority commands
  */
-class Arbiter
+class GoalSeek
 {
 public:
 	// members
 	
 	// methods
-  Arbiter();
+  GoalSeek();
   void teleopCallback(const geometry_msgs::Twist &msg);
   void escape_behaviorCallback(const geometry_msgs::Twist &msg);
   void cruise_behaviorCallback(const geometry_msgs::Twist &msg);
@@ -47,7 +47,7 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////
 
-Arbiter::Arbiter(): ph_("~"), rate_(1), inputs_(3), nh_()
+GoalSeek::GoalSeek(): ph_("~"), rate_(1), inputs_(3), nh_()
 {
 	ph_.param("publish_rate", rate_, rate_);
 	ph_.param("inputs", inputs_, inputs_);
@@ -56,20 +56,20 @@ Arbiter::Arbiter(): ph_("~"), rate_(1), inputs_(3), nh_()
 	
 	vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
 	
-	sub_0 = nh_.subscribe("cmd_vel0", rate_, &Arbiter::teleopCallback, this);
-	sub_1 = nh_.subscribe("cmd_vel1", rate_, &Arbiter::escape_behaviorCallback, this);
-	sub_2 = nh_.subscribe("cmd_vel2", rate_, &Arbiter::cruise_behaviorCallback, this);
+	sub_0 = nh_.subscribe("cmd_vel0", rate_, &GoalSeek::teleopCallback, this);
+	sub_1 = nh_.subscribe("cmd_vel1", rate_, &GoalSeek::escape_behaviorCallback, this);
+	sub_2 = nh_.subscribe("cmd_vel2", rate_, &GoalSeek::cruise_behaviorCallback, this);
 	
-	ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "Arbiter constructor is called");
+	ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "GoalSeek constructor is called");
 }
 
-void Arbiter::resetPriorityMaks()
+void GoalSeek::resetPriorityMaks()
 {
 	priority_mask_ = 0x00;
 	return; 
 }
 
-void Arbiter::publish(double angular, double linear)
+void GoalSeek::publish(double angular, double linear)
 {
 	geometry_msgs::Twist vel;
 	vel.angular.z = angular;
@@ -78,7 +78,7 @@ void Arbiter::publish(double angular, double linear)
 	return;
 }
 
-void Arbiter::teleopCallback(const geometry_msgs::Twist &msg)
+void GoalSeek::teleopCallback(const geometry_msgs::Twist &msg)
 {
 	priority_mask_ |= 0x01;
 	cmd_vel_tele_op.angular.z = msg.angular.z;
@@ -86,7 +86,7 @@ void Arbiter::teleopCallback(const geometry_msgs::Twist &msg)
 	return;
 }
 
-void Arbiter::escape_behaviorCallback(const geometry_msgs::Twist &msg)
+void GoalSeek::escape_behaviorCallback(const geometry_msgs::Twist &msg)
 {
 	priority_mask_ |= 0x02;
 	cmd_vel_escape.angular.z = msg.angular.z;
@@ -94,7 +94,7 @@ void Arbiter::escape_behaviorCallback(const geometry_msgs::Twist &msg)
 	return;
 }
 
-void Arbiter::cruise_behaviorCallback(const geometry_msgs::Twist &msg)
+void GoalSeek::cruise_behaviorCallback(const geometry_msgs::Twist &msg)
 {
 	priority_mask_ |= 0x04;	
 	cmd_vel_cruise.angular.z = msg.angular.z;
@@ -102,13 +102,10 @@ void Arbiter::cruise_behaviorCallback(const geometry_msgs::Twist &msg)
 	return;
 }
 
-void Arbiter::setPriority()
+void GoalSeek::setPriority()
 {
-	if(priority_mask_ != 0x00)
-	{
-		ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-			<< "priority_mask: " << (int)priority_mask_);
-	}
+	ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+		<< "priority_mask: " << (int)priority_mask_);
 	if(priority_mask_ & 0x01)
 	{
 		priority_ = TELE_OP;
@@ -130,7 +127,7 @@ void Arbiter::setPriority()
 	
 }
 
-void Arbiter::arbitrate()
+void GoalSeek::arbitrate()
 {
 	while(ros::ok())
 	{
@@ -143,7 +140,7 @@ void Arbiter::arbitrate()
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "arbiter");
+  ros::init(argc, argv, "GoalSeek");
   Arbiter arbiter;
   arbiter.arbitrate();
  
