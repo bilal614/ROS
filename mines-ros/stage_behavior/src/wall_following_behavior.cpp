@@ -214,7 +214,7 @@ void WallFollowBehavior::update(void)
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "wall_follow_behavior");
-  WallFollowBehavior cruise_behavior;
+  WallFollowBehavior wall_follow_behavior;
   ros::spin();
 
   return 0;

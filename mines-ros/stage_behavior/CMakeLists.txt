@@ -10,6 +10,8 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   sensor_msgs
   std_msgs
+  tf
+  nav_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -110,6 +112,7 @@ add_executable(arbiter src/arbiter.cpp)
 add_executable(cruise_behavior src/cruise_behavior.cpp)
 add_executable(escape_behavior src/escape_behavior.cpp)
 add_executable(wall_following_behavior src/wall_following_behavior.cpp)
+add_executable(goal_seek src/goal_seek.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -126,6 +129,9 @@ target_link_libraries(escape_behavior
    ${catkin_LIBRARIES}
 )
 target_link_libraries(wall_following_behavior
+   ${catkin_LIBRARIES}
+)
+target_link_libraries(goal_seek
    ${catkin_LIBRARIES}
 )
 

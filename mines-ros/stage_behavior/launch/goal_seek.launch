@@ -22,7 +22,7 @@
 
   <!-- Other behavior -->
 
-  <node name="teleop" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" launch-prefix="xterm -e">
+  <node name="goal_seek" pkg="stage_behavior" type="goal_seek" launch-prefix="xterm -e">
     <remap from="cmd_vel" to="cmd_vel0"/>
     <param name="publish_rate" value="10"/>
   </node>
@@ -33,6 +33,15 @@
     <param name="publish_rate" value="10"/>
     <param name="cruise_velocity" value="0.5"/>
   </node>
-
+  
+  <!--
+  <node 
+		pkg="tf" 
+		type="static_transform_publisher" 
+		name="static_Publisher" 
+		args="0 0 0 0 0 0 1 map odom 100" 
+	/>
+	-->
 </launch>
+
 
