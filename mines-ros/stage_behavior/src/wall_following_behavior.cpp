@@ -67,7 +67,7 @@ WallFollowBehavior::WallFollowBehavior():
   bump_distance_(1.0),
   wallDistance(0.5),
   maxSpeed(0.2),
-  direction(1),
+  direction(-1),
   P(10.0),
   D(5.0),
   angleCoef(1.0),

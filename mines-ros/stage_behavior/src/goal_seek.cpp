@@ -19,8 +19,10 @@ protected:
 	
 	// members
 	ros::NodeHandle nh_, ph_;
-	ros::Subscriber sub_0, sub_1, sub_2;
+	ros::Subscriber sub_;
 	ros::Publisher vel_pub_;
+	tf::TransformListener pose_listener;//For getting current position
+	tf::StampedTransform position_transform;
 	
 	int rate_; // update and publish rate (Hz)
 	
@@ -35,8 +37,19 @@ GoalSeek::GoalSeek(): ph_("~"), rate_(1), nh_()
 	
 	
 	vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
-	
+		
 	ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "GoalSeek constructor is called");
+	while (nh.ok())
+	{
+		try{
+			pose_listener.lookupTransform("/odom", "/base_footprint", ros::Time(0), position_transform);
+		}
+		catch (tf::TransformException &ex) {
+		  ROS_ERROR("%s",ex.what());
+		  ros::Duration(1.0).sleep();
+		  continue;
+		}
+	}
 }
 
 
