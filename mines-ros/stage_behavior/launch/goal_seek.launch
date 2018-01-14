@@ -5,16 +5,11 @@
   <!-- Launch stage world -->
   <include file="$(find stage_worlds)/launch/laser_world.launch" />
 	
-  <!-- Arbiter -->
-  <node name="arbiter" pkg="stage_behavior" type="arbiter" launch-prefix="xterm -e">
-    <param name="inputs" value="3" />
-    <param name="publish_rate" value="10" />
-  </node>
 
   <!-- Wall follow behavior -->
   <node name="wall_follow" pkg="stage_behavior" type="wall_following_behavior" launch-prefix="xterm -e">
     <remap from="scan" to="base_scan"/>
-    <remap from="cmd_vel" to="cmd_vel1"/>
+    <remap from="cmd_vel_1" to="cmd_vel"/>
     <param name="publish_rate" value="20"/>
     <param name="bump_distance" value="1.0" />
     <param name="robot_size" value="0.33" />
@@ -23,15 +18,8 @@
   <!-- Other behavior -->
 
   <node name="goal_seek" pkg="stage_behavior" type="goal_seek" launch-prefix="xterm -e">
-    <remap from="cmd_vel" to="cmd_vel0"/>
+    <remap from="cmd_vel_0" to="cmd_vel"/>
     <param name="publish_rate" value="10"/>
-  </node>
-
-  <!-- Cruise behavior -->
-  <node name="cruise" pkg="stage_behavior" type="cruise_behavior">
-    <remap from="cmd_vel" to="cmd_vel2"/>
-    <param name="publish_rate" value="10"/>
-    <param name="cruise_velocity" value="0.5"/>
   </node>
   
   <!--

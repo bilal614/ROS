@@ -82,9 +82,9 @@ WallFollowBehavior::WallFollowBehavior():
   ph_.param("bump_distance", bump_distance_, bump_distance_);
   ph_.param("robot_size", robot_size_, robot_size_);
 
-  vel_pub_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", rate_);
+  vel_pub_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel_1", rate_);
   scan_sub_ = nh_.subscribe<sensor_msgs::LaserScan>("/scan", 100, &WallFollowBehavior::scanCallback, this);
-  state_sub_ = nh_.subscribe("/move_base_simple/goal", 1000, &WallFollowBehavior::stateCallback, this);
+  state_sub_ = nh_.subscribe("/state", 1000, &WallFollowBehavior::stateCallback, this);
   
   timer_ = nh_.createTimer(ros::Duration(1.0/rate_), boost::bind(&WallFollowBehavior::update, this));
 }
