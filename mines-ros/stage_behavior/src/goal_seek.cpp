@@ -2,6 +2,7 @@
 #include <tf/transform_listener.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/PointStamped.h>
+#include <geometry_msgs/PoseStamped.h>
 #include "stdint.h"
 #include <exception>
 
@@ -17,6 +18,7 @@ public:
   GoalSeek();
   void ListenTF();
   void publish(double angular, double linear);
+  void goalSetCallback(const geometry_msgs::PoseStamped &msg);
 
 protected:
 	
@@ -24,24 +26,22 @@ protected:
 	ros::NodeHandle nh_, ph_;
 	ros::Subscriber sub_;
 	ros::Publisher vel_pub_;
-	tf::TransformListener pose_listener;/*listener,*///For getting current position
-	tf::StampedTransform position_transform;/*transform,*/
+	tf::TransformListener pose_listener;//For getting current position
+	geometry_msgs::PoseStamped goal_;
 	geometry_msgs::PointStamped origin_point;
 	geometry_msgs::PointStamped current_point;
 	
 	int rate_; // update and publish rate (Hz)
-	
+	bool goal_received_;
 	// methods
 };
 
 ///////////////////////////////////////////////////////////////////////////
 
 GoalSeek::GoalSeek(): ph_("~"), rate_(1), nh_(), 
-pose_listener(), position_transform(),
-origin_point(), current_point()//, listener(), transform()
+pose_listener(), origin_point(), current_point(), goal_received_(false)
 {
 	ph_.param("publish_rate", rate_, rate_);
-	
 	
 	vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
 	
@@ -52,9 +52,25 @@ origin_point(), current_point()//, listener(), transform()
 	origin_point.point.y = 0.0;
 	origin_point.point.z = 0.0;
 	
+	sub_ = nh_.subscribe("/move_base_simple/goal", rate_, &GoalSeek::goalSetCallback, this);
 	ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "GoalSeek constructor is called");
 }
 
+void GoalSeek::goalSetCallback(const geometry_msgs::PoseStamped &msg)
+{
+	if(!goal_received_)
+	{
+		goal_.pose.position.x = msg.pose.position.x;
+		goal_.pose.position.y = msg.pose.position.y;
+		goal_.pose.orientation.w = msg.pose.orientation.w;
+		goal_received_ = true;
+		ROS_INFO_STREAM(std::setprecision(2) << std::fixed 
+			<< "goal: x:" << goal_.pose.position.x << ", y: " << goal_.pose.position.y
+			<< ", w: " << goal_.pose.orientation.w);
+	}
+}
+
+/*This function must be called in a repeating block eg. while(nh_.ok()) */
 void GoalSeek::ListenTF()
 {
 	while (nh_.ok())
@@ -80,6 +96,7 @@ void GoalSeek::ListenTF()
 		double y = -1*current_point.point.y;
 		//ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 			//<< "x: " << x << ", y: " << y);
+		ros::spinOnce();
 	}
 }
 
@@ -98,7 +115,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "GoalSeek");
   GoalSeek goal_seek;
   goal_seek.ListenTF();
-  ros::spin();
+  //ros::spin();
   
   return 0;
 }
