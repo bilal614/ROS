@@ -54,6 +54,9 @@
   <run_depend>stage</run_depend>
   <run_depend>stage_worlds</run_depend>
   <run_depend>tf</run_depend>
+  
+  <build_depend>message_generation</build_depend>
+  <run_depend>message_runtime</run_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

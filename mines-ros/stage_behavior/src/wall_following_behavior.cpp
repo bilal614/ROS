@@ -2,8 +2,15 @@
 #include <geometry_msgs/Twist.h>
 #include <sensor_msgs/LaserScan.h>
 #include <math.h>
+#include "stage_behavior/State.h"
 
 #define PI 3.141592
+
+enum State
+{
+  IDLE,
+  FOLLOW_WALL,
+};
 
 /**
  * Wall following behavior makes the robot follow along obstacle
@@ -17,21 +24,17 @@ public:
 	WallFollowBehavior();
 	void publish();
 	void scanCallback (const sensor_msgs::LaserScan::ConstPtr& scan_msg);
+	void stateCallback(const stage_behavior::State& state_msg);
 	bool isTriggered(void);
 	void update(void);
 
 protected:
 	// members
 	ros::NodeHandle nh_,ph_;
-    ros::Subscriber scan_sub_;
+    ros::Subscriber scan_sub_, state_sub_;
     ros::Publisher vel_pub_;
     ros::Timer timer_;
     
-    enum State
-    {
-      IDLE,
-      FOLLOW_WALL,
-    };
     State state_; // state of escape procedure
 	ros::Time until_; // time until next state
     
@@ -79,9 +82,23 @@ WallFollowBehavior::WallFollowBehavior():
   ph_.param("bump_distance", bump_distance_, bump_distance_);
   ph_.param("robot_size", robot_size_, robot_size_);
 
-  vel_pub_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+  vel_pub_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", rate_);
   scan_sub_ = nh_.subscribe<sensor_msgs::LaserScan>("/scan", 100, &WallFollowBehavior::scanCallback, this);
+  state_sub_ = nh_.subscribe("/move_base_simple/goal", 1000, &WallFollowBehavior::stateCallback, this);
+  
   timer_ = nh_.createTimer(ros::Duration(1.0/rate_), boost::bind(&WallFollowBehavior::update, this));
+}
+
+void WallFollowBehavior::stateCallback(const stage_behavior::State& state_msg)
+{
+	if(state_msg.state == true)
+	{
+		state_ = FOLLOW_WALL;
+	}
+	else
+	{
+		state_ = IDLE;
+	}
 }
 
 void WallFollowBehavior::scanCallback (const sensor_msgs::LaserScan::ConstPtr& msg)
@@ -185,12 +202,12 @@ void WallFollowBehavior::update(void)
   {
 	case IDLE:      
 		// start wall follow
-		ROS_INFO_STREAM("WallFollowBehavior triggered");
-		ROS_INFO_STREAM("WallFollowBehavior::FOLLOW_WALL");
+		/*ROS_INFO_STREAM("WallFollowBehavior triggered");
+		ROS_INFO_STREAM("WallFollowBehavior::FOLLOW_WALL");*/
 
 		break;
     case FOLLOW_WALL:
-		ROS_INFO_STREAM("Following Wall");
+		//ROS_INFO_STREAM("Following Wall");
 		publish();
       /*
       if(now < until_)
