@@ -67,7 +67,7 @@ WallFollowBehavior::WallFollowBehavior():
   state_(IDLE),
   scan_received_(false),
   robot_size_(0.33),
-  bump_distance_(1.0),
+  bump_distance_(0.5),
   wallDistance(0.5),
   maxSpeed(0.2),
   direction(-1),
