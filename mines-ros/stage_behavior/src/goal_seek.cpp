@@ -9,7 +9,7 @@
 #include <exception>
 #include <math.h>
 
-#define EPSILON 0.005
+#define EPSILON 0.01
 #define DELTA 0.05
 #define GOAL_THRESHOLD 0.25
 /**
@@ -88,9 +88,12 @@ void GoalSeek::goalSetCallback(const geometry_msgs::PoseStamped &msg)
 		goal_.pose.position.y = msg.pose.position.y;
 		goal_.pose.orientation.w = msg.pose.orientation.w;
 		goal_received_ = true;
-				
-		slope = (goal_.pose.position.y - origin_point.point.y)/(goal_.pose.position.x - origin_point.point.x);
-		intercept = goal_.pose.position.y - slope*goal_.pose.position.x;
+		
+		if((goal_.pose.position.x - origin_point.point.x) > EPSILON)
+		{
+			slope = (goal_.pose.position.y - origin_point.point.y)/(goal_.pose.position.x - origin_point.point.x);
+			intercept = goal_.pose.position.y - slope*goal_.pose.position.x;
+		}
 		dis_frm_orig_to_goal = sqrt(pow(goal_.pose.position.y - origin_point.point.y, 2) + 
 			pow(goal_.pose.position.x - origin_point.point.x, 2));
 		ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "x: " << x << ", y: "  << y
@@ -145,6 +148,9 @@ void GoalSeek::scanCallback (const sensor_msgs::LaserScan::ConstPtr& scan_msg)
 			state_.state = false;
 			state_pub_.publish(state_);
 		}
+		//ROS_INFO_STREAM(std::setprecision(2) << std::fixed 
+		//<< "state: wall_hit: " << wall_hit_ << ", on_track: " << on_track_ << ", x: " 
+		//<< x << ", y: " << y);
 	}
 	//ROS_INFO_STREAM(std::setprecision(2) << std::fixed 
 		//<< "state: wall_hit: " << wall_hit_ << ", on_track: " << on_track_);
@@ -234,17 +240,36 @@ void GoalSeek::publish(double angular, double linear)
 
 bool GoalSeek::checkFollowWallMessage()
 {
-	double checkY = x*slope + intercept;
+	double checkY = 0.0;
 	double current_dist_to_goal = sqrt(pow(goal_.pose.position.x - x, 2) + pow(goal_.pose.position.y - y, 2));
-	if(std::abs(checkY - y) < DELTA && (current_dist_to_goal < dis_frm_bump_to_goal))
+	if((goal_.pose.position.x - origin_point.point.x) > EPSILON)
 	{
-		ROS_INFO_STREAM(std::setprecision(2) << std::fixed 
-			<< "back on track!!! " << ", x: "  << x << ", y: "  << y);
-		return true;
+		checkY = x*slope + intercept;
+		
+		
+		if(std::abs(checkY - y) < DELTA && (current_dist_to_goal < dis_frm_bump_to_goal))
+		{
+			ROS_INFO_STREAM(std::setprecision(2) << std::fixed 
+				<< "back on track!!! " << ", x: "  << x << ", y: "  << y);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
-	else
+	else//for vertical lines
 	{
-		return false;
+		if(std::abs(goal_.pose.position.x - x) < EPSILON && (current_dist_to_goal < dis_frm_bump_to_goal))
+		{
+			ROS_INFO_STREAM(std::setprecision(2) << std::fixed 
+				<< "back on track!!! " << ", x: "  << x << ", y: "  << y);
+			return true;
+		} 
+		else
+		{
+			return false;
+		}
 	}
 }
 
