@@ -10,6 +10,7 @@
 #include <math.h>
 
 #define EPSILON 0.001
+#define DELTA 0.1
 /**
  * Priority based arbiter, forwards highest priority commands
  */
@@ -49,6 +50,7 @@ protected:
 	bool on_track_;
 	bool wall_hit_;
 	bool goal_reached_;
+	double x, y, th;//positional coordinates
 	// methods
 };
 
@@ -56,12 +58,12 @@ protected:
 
 GoalSeek::GoalSeek(): ph_("~"), rate_(1), nh_(), 
 pose_listener(), origin_point(), current_point(), goal_received_(false),
-bump_distance_(1.0), on_track_(true), wall_hit_(false), goal_reached_(false), position_transform()
+bump_distance_(0.35), on_track_(true), wall_hit_(false), goal_reached_(false), position_transform()
 {
 	ph_.param("publish_rate", rate_, rate_);
 	
-	vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd_vel_0", rate_);
-	state_pub_ = nh_.advertise<sensor_msgs::LaserScan>("/state", rate_);
+	vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd_vel", rate_);
+	state_pub_ = nh_.advertise<stage_behavior::State>("/state", rate_);
 	
 	origin_point.header.frame_id = "odom";
 	//we'll just use the most recent transform available for our simple example
@@ -72,7 +74,7 @@ bump_distance_(1.0), on_track_(true), wall_hit_(false), goal_reached_(false), po
 	
 	scan_sub_ = nh_.subscribe<sensor_msgs::LaserScan>("/scan", 100, &GoalSeek::scanCallback, this);
 	sub_ = nh_.subscribe("/move_base_simple/goal", rate_, &GoalSeek::goalSetCallback, this);
-	wall_sub_ = nh_.subscribe("cmd_vel1", rate_, &GoalSeek::wallCallback, this);
+	wall_sub_ = nh_.subscribe("cmd_vel_1", rate_, &GoalSeek::wallCallback, this);
 	ROS_INFO_STREAM(std::setprecision(2) << std::fixed << "GoalSeek constructor is called");
 }
 
@@ -96,8 +98,13 @@ void GoalSeek::scanCallback (const sensor_msgs::LaserScan::ConstPtr& scan_msg)
 	if(checkGoalReached())
 	{
 		goal_reached_ = true;
+		publish(0, 0);
 		return;
 	}
+	
+	//Update positional coordinates
+	ListenTF();
+	
 	//Determine if there is a wall in front of you
 	int size = scan_msg->ranges.size();
 	for(int i = (size/2)-10; i < (size/2)+10; i++)
@@ -109,9 +116,14 @@ void GoalSeek::scanCallback (const sensor_msgs::LaserScan::ConstPtr& scan_msg)
 			on_track_ = false;
 			wall_hit_ = true;
 			state_pub_.publish(state_);
+			//ROS_INFO_STREAM(std::setprecision(2) << std::fixed 
+			//<< "state: wall_hit: " << wall_hit_ << ", state.state: " << state_.state);
 			return;
 		}
 	}
+	//ROS_INFO_STREAM(std::setprecision(2) << std::fixed 
+		//<< "state: wall_hit: " << wall_hit_ << ", on_track: " << on_track_);
+	return;
 }
 
 void GoalSeek::wallCallback(const geometry_msgs::Twist &msg)
@@ -127,22 +139,21 @@ geometry_msgs::Twist GoalSeek::resolveVelocity()
 	
 	double goalX = goal_.pose.position.x;
 	double goalY = goal_.pose.position.y;
-	double currentX = -1*current_point.point.x;
-	double currentY = -1*current_point.point.y;
+	double currentX = current_point.point.x;
+	double currentY = current_point.point.y;
 	float deltaX = goal_.pose.position.x - position_transform.getOrigin().x();
 	float deltaY = goal_.pose.position.y - position_transform.getOrigin().y();
-	
 	double angle = (atan2(deltaY, deltaX) - tf::getYaw(position_transform.getRotation()));
 	
 	velocity_msg.linear.x = 0.5;
 	
 	velocity_msg.angular.z = angle;
-	/*For vertical line*/
+	/*For vertical line
 	if(std::abs(goalY - currentY) < EPSILON)
 	{
 		velocity_msg.angular.z = 0;
 	}
-	
+	*/
 	return velocity_msg;
 }
 
@@ -150,10 +161,11 @@ bool GoalSeek::checkGoalReached()
 {
 	double goalX = goal_.pose.position.x;
 	double goalY = goal_.pose.position.y;
-	double currentX = -1*current_point.point.x;
-	double currentY = -1*current_point.point.y;
-	if(std::abs(goalY - currentY) < EPSILON && std::abs(goalX - currentX) < EPSILON)
+	double currentX = position_transform.getOrigin().x();
+	double currentY = position_transform.getOrigin().y();
+	if(std::abs(goalY - currentY) < DELTA && std::abs(goalX - currentX) < DELTA && goal_received_)
 	{
+		goal_reached_ = true;
 		return true;	
 	}
 	else
@@ -166,26 +178,23 @@ void GoalSeek::ListenTF()
 {
 	try{
 		ros::Time now = ros::Time(0);
-		pose_listener.waitForTransform("odom", "base_footprint",
-		  now, ros::Duration(0.5));
+		//pose_listener.waitForTransform("odom", "base_footprint",
+		  //now, ros::Duration(0.5));
 		pose_listener.lookupTransform("odom", "base_footprint", now, position_transform);
-		origin_point.header.stamp = ros::Time::now();
-		pose_listener.transformPoint("base_footprint", origin_point, current_point);
+		//origin_point.header.stamp = ros::Time::now();
+		//pose_listener.transformPoint("base_footprint", origin_point, current_point);
 	}
 	catch (tf::TransformException &ex) {
 	  ROS_ERROR("%s",ex.what());
 	  ros::Duration(1.0).sleep();
 	}
 	
-	double x = -1*current_point.point.x;
-	double y = -1*current_point.point.y;
-	double th = tf::getYaw(position_transform.getRotation());
+	x = position_transform.getOrigin().x();
+	y = position_transform.getOrigin().y();
+	th = tf::getYaw(position_transform.getRotation());
+	
 	ROS_INFO_STREAM(std::setprecision(2) << std::fixed
 		<< "x: " << x << ", y: " << y << ", th: " << th);
-		
-	geometry_msgs::Twist velocity = resolveVelocity();
-	
-	publish(velocity.angular.z, velocity.linear.x);	
 }
 
 
@@ -205,16 +214,28 @@ void GoalSeek::sendFollowWallMessage()
 
 void GoalSeek::goalSeekRun()
 {
+	while(!goal_received_)
+	{
+		ros::spinOnce();
+	}
 	while (nh_.ok())
 	{
+		
 		if(goal_reached_)
 		{
+			publish(0, 0);
+			ROS_INFO_STREAM(std::setprecision(2) << std::fixed 
+			<< "state: !wall_hit: " << !wall_hit_ << ", on_track: " << on_track_ << ", !goal_reached_: " << !goal_reached_
+			<< ", x: " << position_transform.getOrigin().x() << ", y: " << position_transform.getOrigin().y());
 			break;
 		}
 		
 		if(on_track_ && !wall_hit_ && !goal_reached_)
 		{
-			ListenTF();
+			//ListenTF();
+			geometry_msgs::Twist velocity = resolveVelocity();
+	
+			publish(velocity.angular.z, velocity.linear.x);
 		}
 		else
 		{
