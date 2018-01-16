@@ -11,7 +11,7 @@
 
 #define EPSILON 0.01
 #define DELTA 0.05
-#define GOAL_THRESHOLD 0.25
+#define GOAL_THRESHOLD 0.2
 /**
  * Priority based arbiter, forwards highest priority commands
  */

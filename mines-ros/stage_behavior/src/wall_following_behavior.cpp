@@ -18,8 +18,6 @@ enum State
 class WallFollowBehavior
 {
 public:
-	// members
-
 	// methods
 	WallFollowBehavior();
 	void publish();
@@ -34,10 +32,8 @@ protected:
     ros::Subscriber scan_sub_, state_sub_;
     ros::Publisher vel_pub_;
     ros::Timer timer_;
-    
     State state_; // state of escape procedure
 	ros::Time until_; // time until next state
-    
 	double wallDistance; // Desired distance from the wall.
 	double e;            // Difference between desired distance from the wall and actual distance.
 	double diffE;     // Derivative element for PD controller;
@@ -48,11 +44,8 @@ protected:
 	int direction;      // 1 for wall on the right side of the robot (-1 for the left one).
 	double angleMin;     // Angle, at which was measured the shortest distance.
 	double distFront;    // Distance, measured by ranger in front of robot.
-	
 	int rate_; // update and publish rate (Hz)
-
 	bool intermediate_goal_reached; // becomes true when intermediate goal is reached and is reset once it reaches intermediate goal
-
 	bool scan_received_; // at least one scan has been received
 	double closest_distance_; // distance to closest object (m)
 	double robot_size_; // size or diameter of robot (m)
@@ -99,13 +92,13 @@ void WallFollowBehavior::stateCallback(const stage_behavior::State& state_msg)
 	{
 		state_ = IDLE;
 	}
+	ROS_INFO_STREAM(std::setprecision(2) << std::fixed
+		<< "state: " << (int)state_);
+	return;
 }
 
 void WallFollowBehavior::scanCallback (const sensor_msgs::LaserScan::ConstPtr& msg)
 {
-	//ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-		//<< "state: " << (int)state_);
-	
 	if(state_ == IDLE)
 	{
 		closest_distance_ = msg->range_max; 
@@ -115,9 +108,6 @@ void WallFollowBehavior::scanCallback (const sensor_msgs::LaserScan::ConstPtr& m
 			if ((range > msg->range_min) && (range > robot_size_) && (range < closest_distance_)) 
 			{ // closest distance to obstacle, excluding parts of the robot
 				closest_distance_ = range;
-				
-				//ROS_INFO_STREAM(std::setprecision(2) << std::fixed
-					//<< "closest_distance: " << closest_distance_);
 			}
 		}
 		scan_received_ = true; // we have received a scan
@@ -130,6 +120,8 @@ void WallFollowBehavior::scanCallback (const sensor_msgs::LaserScan::ConstPtr& m
 		int size = msg->ranges.size();
 
 		//Variables whith index of highest and lowest value in array.
+		//Walls may occur either side of the robot, we want to allow for that.
+		//Thus, we use the entire range of the laser scan.
 		//int minIndex = size*(direction+1)/4;
 		//int maxIndex = size*(direction+3)/4;
 		int minIndex = 0;
@@ -160,7 +152,6 @@ void WallFollowBehavior::scanCallback (const sensor_msgs::LaserScan::ConstPtr& m
 		e = distMin - wallDistance;
 		scan_received_ = true; // we have received a scan
 		
-		//if(!keepStateToFollowWall){state_ = IDLE;}
 		return;
 	}
 }
@@ -184,8 +175,6 @@ void WallFollowBehavior::publish()
 	else {
 		msg.linear.x = maxSpeed;
 	}
-
-	//publishing message
 	vel_pub_.publish(msg);
 }
 
@@ -201,30 +190,12 @@ void WallFollowBehavior::update(void)
   switch (state_)
   {
 	case IDLE:      
-		// start wall follow
-		/*ROS_INFO_STREAM("WallFollowBehavior triggered");
-		ROS_INFO_STREAM("WallFollowBehavior::FOLLOW_WALL");*/
-
 		break;
     case FOLLOW_WALL:
-		//ROS_INFO_STREAM("Following Wall");
 		publish();
-      /*
-      if(now < until_)
-      {
-        // follow_wall
-		publish();
-      } else {
-        state_ = IDLE;
-        until_ = ros::Time::now() + ros::Duration(1.0);
-        ROS_INFO_STREAM("WallFollowBehavior::FOLLOW_WALL");
-      }
-      */
-      break;
-    
+		break;
     default:
-      // should not get here
-      break;
+		break;
   }
 }
 

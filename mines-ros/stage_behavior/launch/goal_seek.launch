@@ -27,14 +27,7 @@
   <node name="static_goal_publisher" pkg="rostopic" type="rostopic"  
   args="pub /move_base_simple/goal geometry_msgs/PoseStamped 
   '{header: {stamp: now, frame_id: &quot; map &quot;}, pose: {position: {x: 0.0, y: 3.5, z: 0.0}, orientation: {w: 1.0}}}'"/>
-  <!--
-  <node 
-		pkg="tf" 
-		type="static_transform_publisher" 
-		name="static_Publisher" 
-		args="0 0 0 0 0 0 1 map odom 100" 
-	/>
-	-->
+ 
 </launch>
 
 
