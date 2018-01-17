@@ -163,13 +163,13 @@ void WallFollowBehavior::publish()
 
 	msg.angular.z = direction*(P*e + D*diffE) + angleCoef * (angleMin - PI*direction/2);    //PD controller
 
-	if (distFront < wallDistance){
+	if (distFront < wallDistance){//robot is confronted with an obstacle and must halt
 		msg.linear.x = 0;
 	}
-	else if (distFront < wallDistance * 2){
+	else if (distFront < wallDistance * 2){//slow down as you approach obstacle directly in front of robot
 		msg.linear.x = 0.5*maxSpeed;
 	}
-	else if (fabs(angleMin)>1.75){
+	else if (fabs(angleMin)>1.75){//robot must slow down to go around corners
 		msg.linear.x = 0.4*maxSpeed;
 	} 
 	else {

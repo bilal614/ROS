@@ -293,7 +293,6 @@ void GoalSeek::goalSeekRun()
 		
 		if(on_track_ && !wall_hit_ && !goal_reached_)
 		{
-			//ListenTF();
 			geometry_msgs::Twist velocity = resolveVelocity();
 	
 			publish(velocity.angular.z, velocity.linear.x);
@@ -305,6 +304,7 @@ void GoalSeek::goalSeekRun()
 		ros::spinOnce();
 	}
 }
+
 
 int main(int argc, char **argv)
 {
