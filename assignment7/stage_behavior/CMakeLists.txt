@@ -88,7 +88,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES stage_behavior
-  CATKIN_DEPENDS geometry_msgs roscpp rospy sensor_msgs std_msgs message_runtime
+  CATKIN_DEPENDS message_runtime geometry_msgs roscpp rospy sensor_msgs std_msgs 
 #  DEPENDS system_lib
 )
 
@@ -114,7 +114,10 @@ add_executable(arbiter src/arbiter.cpp)
 add_executable(cruise_behavior src/cruise_behavior.cpp)
 add_executable(escape_behavior src/escape_behavior.cpp)
 add_executable(wall_following_behavior src/wall_following_behavior.cpp)
+add_dependencies(wall_following_behavior ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 add_executable(goal_seek src/goal_seek.cpp)
+add_dependencies(goal_seek ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes

@@ -4,10 +4,10 @@
 #include <geometry_msgs/PointStamped.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <sensor_msgs/LaserScan.h>
-#include "stage_behavior/State.h"
 #include "stdint.h"
 #include <exception>
 #include <math.h>
+#include "stage_behavior/State.h"
 
 #define EPSILON 0.01
 #define DELTA 0.05
